@@ -53,7 +53,7 @@ namespace kNumbers
                 return new Vector2(maxWindowWidth, 90f + (float)base.PawnsCount * PawnRowHeight + 65f);
             }
         }
-        
+
         float kListDesiredWidth = 0f;
 
         pawnType chosenPawnType = pawnType.Colonists; 
@@ -75,9 +75,12 @@ namespace kNumbers
             pawnAnimalStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
             pawnAnimalNeedDef = tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList();
 
-            
+        }
 
-
+        public override void PreOpen()
+        {
+            base.PreOpen();
+            pawnListNeedsUpdate = true;
         }
 
         bool fits(float desiredSize)
