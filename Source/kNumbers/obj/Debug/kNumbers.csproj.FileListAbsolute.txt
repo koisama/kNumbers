@@ -1,0 +1,22 @@
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\RWNumbers.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\RWNumbers.pdb
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\Assembly-CSharp.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\UnityEngine.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\Assembly-CSharp-firstpass.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\Assembly-UnityScript-firstpass.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\Boo.Lang.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\bin\Debug\UnityScript.Lang.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\obj\Debug\RWNumbers.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\RWNumbers\RWNumbers\obj\Debug\RWNumbers.pdb
+C:\Misc\RimWorld911Win\Mods\kNumbers\Assemblies\RWNumbers.dll
+C:\Misc\RimWorld911Win\Mods\kNumbers\Assemblies\RWNumbers.pdb
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\RWNumbers.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\RWNumbers.pdb
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\Assembly-CSharp.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\UnityEngine.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\Assembly-CSharp-firstpass.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\Assembly-UnityScript-firstpass.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\Boo.Lang.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\bin\Debug\UnityScript.Lang.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\obj\Debug\RWNumbers.dll
+C:\Users\koi-sama\Documents\Visual Studio 2015\Projects\kNumbers\kNumbers\obj\Debug\RWNumbers.pdb
