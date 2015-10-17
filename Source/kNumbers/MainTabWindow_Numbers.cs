@@ -16,8 +16,8 @@ namespace kNumbers
         {
             Colonists,
             Prisoners,
-            Enemies,
-            Animals,
+            Enemies,    //assuming humanlike enemies, animals somewhat worked, but mechanoids will crash the tab
+            Animals,    
             WildAnimals,
         }
 
@@ -27,8 +27,9 @@ namespace kNumbers
             Column
         }
 
-        bool pawnListDescending = false;
-        bool pawnListNeedsUpdate = true;
+        public static bool pawnListDescending = false;
+        public static bool isDirty = true;
+        int pawnListUpdateNext = 0;
 
         //global lists
         List<StatDef> pawnHumanlikeStatDef = new List<StatDef>();
@@ -75,12 +76,13 @@ namespace kNumbers
             pawnAnimalStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
             pawnAnimalNeedDef = tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList();
 
+            kList.Add(new KListObject(KListObject.objectType.Gear, "Equipment".Translate(), null));
         }
 
         public override void PreOpen()
         {
             base.PreOpen();
-            pawnListNeedsUpdate = true;
+            isDirty = true;
         }
 
         bool fits(float desiredSize)
@@ -110,7 +112,7 @@ namespace kNumbers
                     break;
 
                 case pawnType.Enemies:
-                    tempPawns = Find.ListerPawns.PawnsHostileToColony;
+                    tempPawns = Find.ListerPawns.PawnsHostileToColony.Where(p => p.RaceProps.Humanlike);
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
@@ -148,9 +150,10 @@ namespace kNumbers
 
                         case KListObject.objectType.Need:
                             //pause game if we're sorting by needs because these things change
+                            /*
                             if (!Find.TickManager.Paused)
                                 Find.TickManager.TogglePaused();
-
+                                */
                             this.pawns = (from p in tempPawns
                                           orderby p.needs.TryGetNeed((NeedDef)sortObject.displayObject).CurLevel ascending
                                           select p).ToList();
@@ -160,6 +163,27 @@ namespace kNumbers
                             this.pawns = (from p in tempPawns
                                           orderby p.skills.GetSkill((SkillDef)sortObject.displayObject).XpTotalEarned ascending
                                           select p).ToList();
+                            break;
+
+                        case KListObject.objectType.Gear:
+                            this.pawns = tempPawns.OrderBy(p => (p.equipment != null) ? ((p.equipment.AllEquipment.Count() > 0) ? p.equipment.AllEquipment.First().LabelCap : "") : "" ).ToList();
+                            break;
+
+                        case KListObject.objectType.ControlPrisonerGetsFood:
+                            this.pawns = tempPawns.OrderBy(p => p.guest.GetsFood).ToList();
+                            break;
+
+                        case KListObject.objectType.ControlPrisonerInteraction:
+                            this.pawns = tempPawns.OrderBy(p => p.guest.interactionMode).ToList();
+                            break;
+
+                        case KListObject.objectType.ControlMedicalCare:
+                            this.pawns = tempPawns.OrderBy(p => p.playerSettings.medCare).ToList();
+                            break;
+
+                        default:
+                            //no way to sort
+                            this.pawns = tempPawns.ToList();
                             break;
                     }
                     
@@ -171,7 +195,9 @@ namespace kNumbers
                 this.pawns.Reverse();
             }
 
-            pawnListNeedsUpdate = false;
+            isDirty = false;
+            pawnListUpdateNext = Find.TickManager.TicksGame + Verse.GenTicks.TickRareInterval;
+
         }
 
         public void PawnSelectOptionsMaker()
@@ -188,7 +214,7 @@ namespace kNumbers
                         if (kList == null)
                             kList = new List<KListObject>();
                         chosenPawnType = pawn;
-                        pawnListNeedsUpdate = true;
+                        isDirty = true;
                     }
                 };
 
@@ -246,11 +272,63 @@ namespace kNumbers
             Find.WindowStack.Add(new FloatMenu(list, false));
         }
 
+        //other hardcoded options
+        public void OtherOptionsMaker()
+        {
+            List<FloatMenuOption> list = new List<FloatMenuOption>();
+                        
+            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies }.Contains(chosenPawnType))
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.Gear, "Equipment".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("Equipment".Translate(), action, MenuOptionPriority.Medium, null, null));
+            }
+
+            if (chosenPawnType == pawnType.Prisoners) {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.ControlPrisonerGetsFood, "GetsFood".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("GetsFood".Translate(), action, MenuOptionPriority.Medium, null, null));
+
+                Action action2 = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.ControlPrisonerInteraction, "koisama.Interaction".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("koisama.Interaction".Translate(), action2, MenuOptionPriority.Medium, null, null));
+            }
+
+            if (new[] { pawnType.Colonists, pawnType.Prisoners }.Contains(chosenPawnType))
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.ControlMedicalCare, "koisama.MedicalCare".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("koisama.MedicalCare".Translate(), action, MenuOptionPriority.Medium, null, null));
+            }
+
+
+                Find.WindowStack.Add(new FloatMenu(list, false));
+        }
+
         public override void DoWindowContents(Rect r)
         {
             base.DoWindowContents(r);
 
-            if (pawnListNeedsUpdate)
+            if (pawnListUpdateNext < Find.TickManager.TicksGame)
+                isDirty = true;
+
+            if (isDirty)
             {
                 UpdatePawnList();
             }
@@ -269,7 +347,7 @@ namespace kNumbers
             }
             x += 190;
 
-            //add column button
+            //stats btn
             Rect addColumnButton = new Rect(x, 0f, 180f, PawnRowHeight);
             if (Widgets.TextButton(addColumnButton, "koisama.Numbers.AddColumnLabel".Translate()))
             {
@@ -277,7 +355,8 @@ namespace kNumbers
             }
             x += 190;
 
-            if (new []{ pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies }.Contains(chosenPawnType))
+            //skills btn
+            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies }.Contains(chosenPawnType))
             {
                 Rect skillColumnButton = new Rect(x, 0f, 180f, PawnRowHeight);
                 if (Widgets.TextButton(skillColumnButton, "koisama.Numbers.AddSkillColumnLabel".Translate()))
@@ -287,6 +366,7 @@ namespace kNumbers
                 x += 190;
             }
 
+            //needs btn
             Rect needsColumnButton = new Rect(x, 0f, 180f, PawnRowHeight);
             if (Widgets.TextButton(needsColumnButton, "koisama.Numbers.AddNeedsColumnLabel".Translate()))
             {
@@ -294,9 +374,14 @@ namespace kNumbers
             }
             x += 190;
 
+            Rect otherColumnBtn = new Rect(x, 0f, 180f, PawnRowHeight);
+            if (Widgets.TextButton(otherColumnBtn, "koisama.Numbers.AddOtherColumnLabel".Translate()))
+            {
+                OtherOptionsMaker();
+            }
+            x += 190;
 
             x = 0;
-
             //names
             Rect nameLabel = new Rect(x, 75f, NameColumnWidth, PawnRowHeight);
             Text.Anchor = TextAnchor.LowerCenter;
@@ -312,7 +397,7 @@ namespace kNumbers
                     chosenOrderBy = orderBy.Name;
                     pawnListDescending = false;
                 }
-                pawnListNeedsUpdate = true;
+                isDirty = true;
             }
 
             TooltipHandler.TipRegion(nameLabel, "koisama.Numbers.SortByTooltip".Translate("koisama.Numbers.Name".Translate()));
@@ -324,7 +409,7 @@ namespace kNumbers
             bool offset = true;
             kListDesiredWidth = 175f;
 
-            for(int i=0;i<kList.Count; i++)
+            for (int i=0;i<kList.Count; i++)
             {
                 float colWidth = kList[i].minWidthDesired;
                 kListDesiredWidth += colWidth;
@@ -359,7 +444,7 @@ namespace kNumbers
                             pawnListDescending = false;
                         }
                     }
-                    pawnListNeedsUpdate = true;
+                    isDirty = true;
                 }
                 offset = !offset;
                 x += colWidth;
@@ -387,8 +472,12 @@ namespace kNumbers
                 Rect capCell = new Rect(x, y, colWidth, 30f);
                 kList[i].Draw(capCell, p);
                 x += colWidth;
-
             }
+
+            /*
+            if (p.health.Downed) {
+                Widgets.DrawLine(new Vector2(5f, y + PawnRowHeight / 2), new Vector2(r.xMax - 5f, y + PawnRowHeight / 2), Color.red, 1);
+            }*/
 
         }
 

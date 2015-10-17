@@ -9,6 +9,11 @@
 	<koisama.Numbers.AddColumnLabel>Add stat</koisama.Numbers.AddColumnLabel>
 	<koisama.Numbers.AddSkillColumnLabel>Add skill</koisama.Numbers.AddSkillColumnLabel>
 	<koisama.Numbers.AddNeedsColumnLabel>Add need</koisama.Numbers.AddNeedsColumnLabel>
+	<koisama.Numbers.AddOtherColumnLabel>Add other</koisama.Numbers.AddOtherColumnLabel>
+	
+	<koisama.Interaction>Prisoner Interaction</koisama.Interaction>
+	<koisama.Interaction.description>How should wardens treat this prisoner.</koisama.Interaction.description>
+	<koisama.MedicalCare>Medical Care</koisama.MedicalCare>
 	
 	<koisama.pawntype.Colonists>Colonists</koisama.pawntype.Colonists>
 	<koisama.pawntype.Enemies>Enemies</koisama.pawntype.Enemies>
