@@ -249,6 +249,7 @@ namespace kNumbers
                 Widgets.ThingIcon(new Rect(3f, 3f, 27f, 27f), thing);
             }
             GUI.EndGroup();
+            TooltipHandler.TipRegion(rect, new TipSignal(thing.LabelCap));
         }
 
         
