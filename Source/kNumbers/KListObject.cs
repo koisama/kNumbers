@@ -10,7 +10,7 @@ using System.Collections;
 
 namespace kNumbers
 {
-    class KListObject
+    public class KListObject : IExposable
     {
 
         public enum objectType
@@ -26,9 +26,9 @@ namespace kNumbers
         }
 
         public objectType oType;
-        public string label { get; }
-        public object displayObject { get; }
-        public float minWidthDesired { get; } = 120f;
+        public string label;
+        public object displayObject;
+        public float minWidthDesired = 120f;
 
         private static Texture2D    passionMinorIcon = ContentFinder<Texture2D>.Get("UI/Icons/PassionMinor", true),
                                     passionMajorIcon = ContentFinder<Texture2D>.Get("UI/Icons/PassionMajor", true),
@@ -53,6 +53,44 @@ namespace kNumbers
 
         private static FieldInfo needThreshPercent = typeof(Need).GetField("threshPercents", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        public void ExposeData()
+        {
+            
+            Scribe_Values.LookValue<objectType>(ref oType, "oType");
+            Scribe_Values.LookValue<float>(ref minWidthDesired, "minWidthDesired");
+            Scribe_Values.LookValue<string>(ref this.label, "label");
+
+            switch (oType)
+            {
+                case objectType.Stat:
+                    StatDef tempObjectS = (StatDef)displayObject;
+                    Scribe_Defs.LookDef(ref tempObjectS, "displayObject");
+                    displayObject = tempObjectS;
+                    break;
+
+                case objectType.Skill:
+                    SkillDef tempObjectK = (SkillDef)displayObject;
+                    Scribe_Defs.LookDef(ref tempObjectK, "displayObject");
+                    displayObject = tempObjectK;
+                    break;
+
+                case objectType.Need:
+                    NeedDef tempObjectN = (NeedDef)displayObject;
+                    Scribe_Defs.LookDef(ref tempObjectN, "displayObject");
+                    displayObject = tempObjectN;
+                    break;
+            }
+
+        }
+
+        //Scribe wants it
+        public KListObject()
+        {
+            oType = objectType.Stat;
+            label = " - ";
+            displayObject = null;
+        }
+
         public KListObject(objectType type, string defName, object dObject)
         {
             
@@ -75,7 +113,7 @@ namespace kNumbers
                     break;
 
                 case objectType.Gear:
-                    minWidthDesired = 180f;
+                    minWidthDesired = 210f;
                     break;
 
                 case objectType.ControlPrisonerGetsFood:
@@ -394,6 +432,6 @@ namespace kNumbers
 
         }
 
-
+        
     }
 }

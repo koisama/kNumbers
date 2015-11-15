@@ -43,7 +43,11 @@ namespace kNumbers
         List<NeedDef> pNeedDef;
 
         List<KListObject> kList = new List<KListObject>();
-        Dictionary<pawnType, List<KListObject>> savedKLists = new Dictionary<pawnType, List<KListObject>>(5);
+
+        public static Dictionary<pawnType, List<KListObject>> savedKLists = new Dictionary<pawnType, List<KListObject>>(5);
+        public static pawnType chosenPawnType = pawnType.Colonists;
+        orderBy chosenOrderBy = orderBy.Name;
+        KListObject sortObject;
 
         float maxWindowWidth = 1060f;
 
@@ -56,10 +60,8 @@ namespace kNumbers
         }
 
         float kListDesiredWidth = 0f;
-
-        pawnType chosenPawnType = pawnType.Colonists; 
-        orderBy chosenOrderBy = orderBy.Name;
-        KListObject sortObject;
+        
+        
 
         public MainTabWindow_Numbers()
         {
@@ -76,13 +78,27 @@ namespace kNumbers
             pawnAnimalStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
             pawnAnimalNeedDef = tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList();
 
-            kList.Add(new KListObject(KListObject.objectType.Gear, "Equipment".Translate(), null));
+            savedKLists = new Dictionary<MainTabWindow_Numbers.pawnType, List<KListObject>>(5);
+            foreach (MainTabWindow_Numbers.pawnType pType in Enum.GetValues(typeof(MainTabWindow_Numbers.pawnType)))
+            {
+                savedKLists.Add(pType, new List<KListObject>());
+            }
+
+            MapComponent_Numbers.InitMapComponent();
+
         }
 
         public override void PreOpen()
         {
             base.PreOpen();
             isDirty = true;
+            if (MapComponent_Numbers.hasData)
+            {
+                savedKLists = MapComponent_Numbers.savedKLists;
+                chosenPawnType = MapComponent_Numbers.chosenPawnType;
+                kList = savedKLists[chosenPawnType];
+                MapComponent_Numbers.hasData = false;
+            }
         }
 
         bool fits(float desiredSize)
@@ -92,7 +108,8 @@ namespace kNumbers
 
         void UpdatePawnList()
         {
-            
+            savedKLists[chosenPawnType] = kList;
+
             this.pawns.Clear();
             IEnumerable<Pawn> tempPawns = new List<Pawn>();
 
