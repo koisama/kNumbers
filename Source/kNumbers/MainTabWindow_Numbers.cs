@@ -109,7 +109,7 @@ namespace kNumbers
 				    rect4.xMin -= 4f;
 				    rect4.yMin += 4f;
 				    rect4.yMax -= 6f;
-				    Widgets.FillableBar(rect4, (p as Pawn).health.summaryHealth.SummaryHealthPercent, PawnUIOverlay.HealthTex, BaseContent.ClearTex, false);
+				    Widgets.FillableBar(rect4, (p as Pawn).health.summaryHealth.SummaryHealthPercent, PawnUIOverlay.OverlayHealthTex, BaseContent.ClearTex, false);
 			    }
             }
 			if (Mouse.IsOver(rect3))
@@ -138,7 +138,7 @@ namespace kNumbers
 				Find.MainTabsRoot.EscapeCurrentTab(true);
 				Find.CameraMap.JumpTo(p.PositionHeld);
 				Find.Selector.ClearSelection();
-				if (p.SpawnedInWorld)
+				if (p.Spawned)
 				{
 					Find.Selector.Select(p, true, true);
 				}
@@ -228,12 +228,12 @@ namespace kNumbers
 
             MethodInfo statsToDraw = typeof(StatsReportUtility).GetMethod("StatsToDraw", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod, null, new Type[] { typeof(Thing) }, null);
 
-            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfColony, false, 0);
+            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfColony);
             pawnHumanlikeStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
             pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.label == "mood").Select(x => x.def).ToList()); //why it's not normally returned is beyond me
             pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList());
 
-            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Thrumbo, null, false, 0);
+            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Thrumbo, null);
             pawnAnimalStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
             pawnAnimalNeedDef = tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList();
 
@@ -272,7 +272,7 @@ namespace kNumbers
                    !p.IsPrisoner &&
                    (
                     ((p.Faction != null) && p.Faction.HostileTo(Faction.OfColony)) ||
-                    (!p.RaceProps.Animal && (!p.RaceProps.Humanlike || p.RaceProps.mechanoid)) 
+                    (!p.RaceProps.Animal && (!p.RaceProps.Humanlike || p.RaceProps.IsMechanoid)) 
                    ) && 
                    !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
         }
@@ -301,38 +301,38 @@ namespace kNumbers
             {
                 default:
                 case pawnType.Colonists:
-                    tempPawns = Find.ListerPawns.FreeColonists.Select(p=>p as ThingWithComps).ToList();
+                    tempPawns = Find.MapPawns.FreeColonists.Select(p=>p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Prisoners:
-                    tempPawns = Find.ListerPawns.PrisonersOfColony.Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.MapPawns.PrisonersOfColony.Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Guests:
-                    tempPawns = Find.ListerPawns.AllPawns.Where(p => isGuest(p)).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.MapPawns.AllPawns.Where(p => isGuest(p)).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Enemies:
-                   // tempPawns = Find.ListerPawns.PawnsHostileToColony.Select(p => p as ThingWithComps).ToList();
-                    tempPawns = (from p in Find.ListerPawns.AllPawns where isEnemy(p) select p).Select(p => p as ThingWithComps).ToList();
+                   // tempPawns = Find.MapPawns.PawnsHostileToColony.Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.MapPawns.AllPawns where isEnemy(p) select p).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Animals:
-                    tempPawns = (from p in Find.ListerPawns.PawnsInFaction(Faction.OfColony) where p.RaceProps.Animal select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.MapPawns.PawnsInFaction(Faction.OfColony) where p.RaceProps.Animal select p).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
 
                 case pawnType.WildAnimals:
-                    tempPawns = (from p in Find.ListerPawns.AllPawns where isWildAnimal(p) select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.MapPawns.AllPawns where isWildAnimal(p) select p).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
@@ -374,7 +374,7 @@ namespace kNumbers
                                 Find.TickManager.TogglePaused();
                                 */
                             this.things = (from p in tempPawns
-                                          where (p is Pawn) && !(p as Pawn).RaceProps.mechanoid && ((p as Pawn).needs != null)
+                                          where (p is Pawn) && !(p as Pawn).RaceProps.IsMechanoid && ((p as Pawn).needs != null)
                                           orderby (p as Pawn).needs.TryGetNeed((NeedDef)sortObject.displayObject).CurLevel ascending
                                           select p).ToList();
                             break;

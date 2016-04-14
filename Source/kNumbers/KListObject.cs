@@ -133,7 +133,7 @@ namespace kNumbers
 
         private void DrawSkill(Rect rect, Pawn ownerPawn)
         {
-            if (ownerPawn.RaceProps.mechanoid) return;
+            if (ownerPawn.RaceProps.IsMechanoid) return;
             if (ownerPawn.RaceProps.Animal) return;
 
             SkillRecord skill = ownerPawn.skills.GetSkill((SkillDef)displayObject);
@@ -172,7 +172,7 @@ namespace kNumbers
 
         private void DrawNeed(Rect rect, Pawn ownerPawn)
         {
-            if (ownerPawn.RaceProps.mechanoid) return;
+            if (ownerPawn.RaceProps.IsMechanoid) return;
             if (ownerPawn.needs == null) return;
             //TODO: rebuild using code in DrawOnGUI
             Need need = ownerPawn.needs.TryGetNeed((NeedDef)displayObject);
