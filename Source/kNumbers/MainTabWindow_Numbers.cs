@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using UnityEngine;
 using Verse;
 using RimWorld;
@@ -11,6 +12,9 @@ namespace kNumbers
 {
     public abstract class MainTabWindow_ThingWithComp: MainTabWindow
 	{
+        public const int cFreeSpaceAtTheEnd = 50;
+
+        public const float buttonWidth = 160f;
 
         public const float PawnRowHeight = 30f;
 
@@ -229,7 +233,7 @@ namespace kNumbers
             MethodInfo statsToDraw = typeof(StatsReportUtility).GetMethod("StatsToDraw", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod, null, new Type[] { typeof(Thing) }, null);
 
             tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfColony);
-            pawnHumanlikeStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
+            pawnHumanlikeStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).OrderBy( stat => stat.LabelCap ).ToList();
             pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.label == "mood").Select(x => x.def).ToList()); //why it's not normally returned is beyond me
             pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList());
 
@@ -244,6 +248,24 @@ namespace kNumbers
             }
 
             MapComponent_Numbers.InitMapComponent();
+
+        }
+
+        String numbersXMLPath
+        {
+            get
+            {
+                return Path.Combine(GenFilePaths.ConfigFolderPath, "kNumbers.config");
+            }
+        }
+
+        public void writePresets()
+        {
+            
+        }
+
+        public void readPresets()
+        {
 
         }
 
@@ -405,6 +427,10 @@ namespace kNumbers
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).playerSettings.medCare).ToList();
                             break;
 
+                        case KListObject.objectType.CurrentJob:
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).jobs.curDriver.GetReport()).ToList();
+                            break;
+
                         default:
                             //no way to sort
                             this.things = tempPawns.ToList();
@@ -496,6 +522,12 @@ namespace kNumbers
             Find.WindowStack.Add(new FloatMenu(list, false));
         }
 
+        //presets
+        public void PresetOptionsMaker()
+        {
+
+        }
+
         //other hardcoded options
         public void OtherOptionsMaker()
         {
@@ -505,11 +537,11 @@ namespace kNumbers
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.Gear, "Equipment".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.objectType.Gear, "koisama.Equipment".Translate(), null);
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("Equipment".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("koisama.Equipment".Translate(), action, MenuOptionPriority.Medium, null, null));
             }
 
             if (chosenPawnType == pawnType.Prisoners) {
@@ -541,12 +573,22 @@ namespace kNumbers
                 list.Add(new FloatMenuOption("koisama.MedicalCare".Translate(), action, MenuOptionPriority.Medium, null, null));
             }
 
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.CurrentJob, "koisama.CurrentJob".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Medium, null, null));
+            }
 
-                Find.WindowStack.Add(new FloatMenu(list, false));
+            Find.WindowStack.Add(new FloatMenu(list, false));
         }
 
         public override void DoWindowContents(Rect r)
         {
+            maxWindowWidth = Screen.width;
             base.DoWindowContents(r);
 
             if (pawnListUpdateNext < Find.TickManager.TicksGame)
@@ -564,46 +606,60 @@ namespace kNumbers
             Text.Font = GameFont.Small;
 
             //pawn/prisoner list switch
-            Rect sourceButton = new Rect(x, 0f, 180f, PawnRowHeight);
+            Rect sourceButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
             if (Widgets.TextButton(sourceButton, ("koisama.pawntype." + chosenPawnType.ToString()).Translate()))
             {
                 PawnSelectOptionsMaker();
             }
-            x += 190;
+            x += buttonWidth + 10;
+            TooltipHandler.TipRegion(sourceButton, new TipSignal("koisama.Numbers.ClickToToggle".Translate(), sourceButton.GetHashCode()));
 
             //stats btn
-            Rect addColumnButton = new Rect(x, 0f, 180f, PawnRowHeight);
+            Rect addColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
             if (Widgets.TextButton(addColumnButton, "koisama.Numbers.AddColumnLabel".Translate()))
             {
                 StatsOptionsMaker();
             }
-            x += 190;
+            x += buttonWidth + 10;
 
             //skills btn
             if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies }.Contains(chosenPawnType))
             {
-                Rect skillColumnButton = new Rect(x, 0f, 180f, PawnRowHeight);
+                Rect skillColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
                 if (Widgets.TextButton(skillColumnButton, "koisama.Numbers.AddSkillColumnLabel".Translate()))
                 {
                     SkillsOptionsMaker();
                 }
-                x += 190;
+                x += buttonWidth + 10;
             }
 
             //needs btn
-            Rect needsColumnButton = new Rect(x, 0f, 180f, PawnRowHeight);
+            Rect needsColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
             if (Widgets.TextButton(needsColumnButton, "koisama.Numbers.AddNeedsColumnLabel".Translate()))
             {
                 NeedsOptionsMaker();
             }
-            x += 190;
+            x += buttonWidth + 10;
 
-            Rect otherColumnBtn = new Rect(x, 0f, 180f, PawnRowHeight);
+            Rect otherColumnBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
             if (Widgets.TextButton(otherColumnBtn, "koisama.Numbers.AddOtherColumnLabel".Translate()))
             {
                 OtherOptionsMaker();
             }
-            x += 190;
+            x += buttonWidth + 10;
+
+            //TODO: implement
+            /*
+            Rect addPresetBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
+            if (Widgets.TextButton(addPresetBtn, "koisama.Numbers.SetPresetLabel".Translate()))
+            {
+                PresetOptionsMaker();
+            }
+            x += buttonWidth + 10;
+            */
+
+            Rect thingCount = new Rect(10f, 45f, 200f, 30f);
+            Widgets.Label(thingCount, "koisama.Numbers.Count".Translate() + ": " + this.things.Count().ToString());
 
             x = 0;
             //names
@@ -636,6 +692,12 @@ namespace kNumbers
             for (int i=0;i<kList.Count; i++)
             {
                 float colWidth = kList[i].minWidthDesired;
+
+                if(colWidth + kListDesiredWidth + cFreeSpaceAtTheEnd > maxWindowWidth)
+                {
+                    break;
+                }
+
                 kListDesiredWidth += colWidth;
 
                 Rect defLabel = new Rect(x-35, 20f + (offset ? 10f : 50f), colWidth+70 , 40f);
@@ -693,6 +755,11 @@ namespace kNumbers
             for (int i = 0; i < kList.Count; i++)
             {
                 float colWidth = kList[i].minWidthDesired;
+                if (colWidth + x + cFreeSpaceAtTheEnd > maxWindowWidth)
+                {
+                    //soft break
+                    break;
+                }
                 Rect capCell = new Rect(x, y, colWidth, 30f);
                 kList[i].Draw(capCell, p);
                 x += colWidth;

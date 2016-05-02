@@ -10,6 +10,7 @@ using System.Collections;
 
 namespace kNumbers
 {
+    [StaticConstructorOnStartup]
     public class KListObject : IExposable
     {
 
@@ -22,7 +23,8 @@ namespace kNumbers
             Gear,   //weapon and all apparel
             ControlPrisonerGetsFood,
             ControlMedicalCare,
-            ControlPrisonerInteraction
+            ControlPrisonerInteraction,
+            CurrentJob
         }
 
         public objectType oType;
@@ -109,7 +111,7 @@ namespace kNumbers
                     break;
 
                 case objectType.Need:
-                    minWidthDesired = 120f;
+                    minWidthDesired = 110f;
                     break;
 
                 case objectType.Gear:
@@ -126,6 +128,10 @@ namespace kNumbers
 
                 case objectType.ControlMedicalCare:
                     minWidthDesired = 100f;
+                    break;
+
+                case objectType.CurrentJob:
+                    minWidthDesired = 320f;
                     break;
             }
 
@@ -439,6 +445,18 @@ namespace kNumbers
 
                 case objectType.ControlMedicalCare:
                     if (ownerPawn is Pawn) MedicalCareSetter(rect, ref (ownerPawn as Pawn).playerSettings.medCare);
+                    break;
+
+                case objectType.CurrentJob:
+                    if(ownerPawn is Pawn)
+                    {
+                        Text.Anchor = TextAnchor.MiddleLeft;                           
+                        Widgets.Label(rect, " "+((Pawn)ownerPawn).jobs.curDriver.GetReport());
+                        if (Mouse.IsOver(rect))
+                        {
+                            GUI.DrawTexture(rect, TexUI.HighlightTex);
+                        }
+                    }
                     break;
             }
 
