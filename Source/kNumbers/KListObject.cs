@@ -131,7 +131,7 @@ namespace kNumbers
                     break;
 
                 case objectType.CurrentJob:
-                    minWidthDesired = 320f;
+                    minWidthDesired = 260f;
                     break;
             }
 
@@ -363,6 +363,8 @@ namespace kNumbers
 
         public void Draw(Rect rect, ThingWithComps ownerPawn)
         {
+            Text.Font = GameFont.Small;
+
             switch (oType)
             {
                 case objectType.Stat:
@@ -450,8 +452,19 @@ namespace kNumbers
                 case objectType.CurrentJob:
                     if(ownerPawn is Pawn)
                     {
-                        Text.Anchor = TextAnchor.MiddleLeft;                           
-                        Widgets.Label(rect, " "+((Pawn)ownerPawn).jobs.curDriver.GetReport());
+                        string text = ((Pawn)ownerPawn).jobs.curDriver.GetReport();
+                        Text.Anchor = TextAnchor.MiddleLeft;
+                        Rect tRect = new Rect(rect.xMin + 2, rect.yMin + 3, rect.width - 2, rect.height);
+                        GenText.SetTextSizeToFit(text, tRect);
+
+                        if (Text.Font == GameFont.Tiny)
+                            Widgets.Label(tRect, text);
+                        else
+                        {
+                            Rect sRect = new Rect(rect.xMin + 2, rect.yMin, rect.width - 2, rect.height);
+                            Widgets.Label(sRect, text);
+                        }
+
                         if (Mouse.IsOver(rect))
                         {
                             GUI.DrawTexture(rect, TexUI.HighlightTex);

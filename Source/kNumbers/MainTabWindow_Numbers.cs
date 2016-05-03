@@ -16,7 +16,7 @@ namespace kNumbers
 
         public const float buttonWidth = 160f;
 
-        public const float PawnRowHeight = 30f;
+        public const float PawnRowHeight = 35f;
 
         protected const float NameColumnWidth = 175f;
 
@@ -74,14 +74,14 @@ namespace kNumbers
 
 		protected void DrawRows(Rect outRect)
 		{
-			Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, (float)this.things.Count * 30f);
+			Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, (float)this.things.Count * PawnRowHeight);
 			Widgets.BeginScrollView(outRect, ref this.scrollPosition, viewRect);
 			float num = 0f;
 			for (int i = 0; i < this.things.Count; i++)
 			{
                 ThingWithComps p = this.things[i];
-				Rect rect = new Rect(0f, num, viewRect.width, 30f);
-				if (num - this.scrollPosition.y + 30f >= 0f && num - this.scrollPosition.y <= outRect.height)
+				Rect rect = new Rect(0f, num, viewRect.width, PawnRowHeight);
+				if (num - this.scrollPosition.y + PawnRowHeight >= 0f && num - this.scrollPosition.y <= outRect.height)
 				{
 					GUI.color = new Color(1f, 1f, 1f, 0.2f);
 					Widgets.DrawLineHorizontal(0f, num, viewRect.width);
@@ -90,7 +90,7 @@ namespace kNumbers
 					this.DrawPawnRow(rect, p);
 					this.PostDrawPawnRow(rect, p);
 				}
-				num += 30f;
+				num += PawnRowHeight;
 			}
 			Widgets.EndScrollView();
 			Text.Anchor = TextAnchor.UpperLeft;
@@ -98,12 +98,12 @@ namespace kNumbers
 
 		private void PreDrawPawnRow(Rect rect, ThingWithComps p)
 		{
-			Rect rect2 = new Rect(0f, rect.y, rect.width, 30f);
+			Rect rect2 = new Rect(0f, rect.y, rect.width, PawnRowHeight);
 			if (Mouse.IsOver(rect2))
 			{
 				GUI.DrawTexture(rect2, TexUI.HighlightTex);
 			}
-			Rect rect3 = new Rect(0f, rect.y, 175f, 30f);
+			Rect rect3 = new Rect(0f, rect.y, 175f, PawnRowHeight);
 			Rect position = rect3.ContractedBy(3f);
             if (p is Pawn)
             {
@@ -573,6 +573,7 @@ namespace kNumbers
                 list.Add(new FloatMenuOption("koisama.MedicalCare".Translate(), action, MenuOptionPriority.Medium, null, null));
             }
 
+            if (! new[] { pawnType.Corpses, pawnType.AnimalCorpses }.Contains(chosenPawnType))
             {
                 Action action = delegate
                 {
@@ -599,7 +600,7 @@ namespace kNumbers
                 UpdatePawnList();
             }
 
-            Rect position = new Rect(0f, 0f, r.width, 110f);
+            Rect position = new Rect(0f, 0f, r.width, 115f);
             GUI.BeginGroup(position);
 
             float x = 0f;
@@ -688,6 +689,7 @@ namespace kNumbers
             //TODO: better interface - auto width calculation
             bool offset = true;
             kListDesiredWidth = 175f;
+            Text.Anchor = TextAnchor.MiddleCenter;
 
             for (int i=0;i<kList.Count; i++)
             {
@@ -700,8 +702,8 @@ namespace kNumbers
 
                 kListDesiredWidth += colWidth;
 
-                Rect defLabel = new Rect(x-35, 20f + (offset ? 10f : 50f), colWidth+70 , 40f);
-                Widgets.DrawLine(new Vector2(x + colWidth/2 , 52f + (offset ? 15f : 55f)), new Vector2(x + colWidth/2 , 110f), Color.gray, 1);
+                Rect defLabel = new Rect(x-35, 25f + (offset ? 10f : 50f), colWidth+70 , 40f);
+                Widgets.DrawLine(new Vector2(x + colWidth/2 , 55f + (offset ? 15f : 55f)), new Vector2(x + colWidth/2 , 113f), Color.gray, 1);
                 Widgets.Label(defLabel, kList[i].label);
 
                 StringBuilder labelSB = new StringBuilder();
@@ -760,7 +762,7 @@ namespace kNumbers
                     //soft break
                     break;
                 }
-                Rect capCell = new Rect(x, y, colWidth, 30f);
+                Rect capCell = new Rect(x, y, colWidth, PawnRowHeight);
                 kList[i].Draw(capCell, p);
                 x += colWidth;
             }
