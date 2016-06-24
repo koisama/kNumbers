@@ -423,6 +423,10 @@ namespace kNumbers
                             this.things = tempPawns.Where(p=>p is Pawn).OrderBy(p => (p as Pawn).guest.interactionMode).ToList();
                             break;
 
+                        case KListObject.objectType.Age:
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).ageTracker.AgeBiologicalYearsFloat).ToList();
+                            break;
+
                         case KListObject.objectType.ControlMedicalCare:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).playerSettings.medCare).ToList();
                             break;
@@ -562,7 +566,8 @@ namespace kNumbers
         public void OtherOptionsMaker()
         {
             List<FloatMenuOption> list = new List<FloatMenuOption>();
-                        
+            
+            //equipment bearers            
             if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies, pawnType.Corpses }.Contains(chosenPawnType))
             {
                 Action action = delegate
@@ -572,6 +577,18 @@ namespace kNumbers
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.Equipment".Translate(), action, MenuOptionPriority.Medium, null, null));
+            }
+
+            //all living things
+            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies, pawnType.Animals, pawnType.WildAnimals, pawnType.Guests }.Contains(chosenPawnType))
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.Age, "koisama.Age".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("koisama.Age".Translate(), action, MenuOptionPriority.Medium, null, null));
             }
 
             if (chosenPawnType == pawnType.Prisoners) {
@@ -611,6 +628,7 @@ namespace kNumbers
                 list.Add(new FloatMenuOption("WoolGrowth".Translate(), action2, MenuOptionPriority.Medium, null, null));
             }
 
+            //healable
             if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Animals }.Contains(chosenPawnType))
             {
                 Action action = delegate

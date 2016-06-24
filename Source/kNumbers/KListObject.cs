@@ -26,7 +26,8 @@ namespace kNumbers
             ControlPrisonerInteraction,
             CurrentJob,
             AnimalMilkFullness,
-            AnimalWoolGrowth
+            AnimalWoolGrowth,
+            Age
         }
 
         public objectType oType;
@@ -108,6 +109,7 @@ namespace kNumbers
                     minWidthDesired = 120f;
                     break;
 
+                case objectType.Age:
                 case objectType.AnimalMilkFullness:
                 case objectType.AnimalWoolGrowth:
                 case objectType.Stat:
@@ -395,6 +397,16 @@ namespace kNumbers
 
                 case objectType.Need:
                     if (ownerPawn is Pawn) DrawNeed(rect, ownerPawn as Pawn);
+                    break;
+
+                case objectType.Age:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    string ageValue = ((ownerPawn as Pawn).ageTracker.AgeBiologicalYears.ToString());
+                    Widgets.Label(rect, ageValue);
+                    if (Mouse.IsOver(rect))
+                    {
+                        GUI.DrawTexture(rect, TexUI.HighlightTex);
+                    }
                     break;
 
                 case objectType.Gear:
