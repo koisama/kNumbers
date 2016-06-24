@@ -24,7 +24,9 @@ namespace kNumbers
             ControlPrisonerGetsFood,
             ControlMedicalCare,
             ControlPrisonerInteraction,
-            CurrentJob
+            CurrentJob,
+            AnimalMilkFullness,
+            AnimalWoolGrowth
         }
 
         public objectType oType;
@@ -106,6 +108,8 @@ namespace kNumbers
                     minWidthDesired = 120f;
                     break;
 
+                case objectType.AnimalMilkFullness:
+                case objectType.AnimalWoolGrowth:
                 case objectType.Stat:
                     minWidthDesired = 80f;
                     break;
@@ -364,6 +368,7 @@ namespace kNumbers
         public void Draw(Rect rect, ThingWithComps ownerPawn)
         {
             Text.Font = GameFont.Small;
+            string value = "-";
 
             switch (oType)
             {
@@ -447,6 +452,30 @@ namespace kNumbers
 
                 case objectType.ControlMedicalCare:
                     if (ownerPawn is Pawn) MedicalCareSetter(rect, ref (ownerPawn as Pawn).playerSettings.medCare);
+                    break;
+
+                case objectType.AnimalMilkFullness:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.milkable)
+                    {
+                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompMilkable).FirstOrDefault();
+                        if(comp != null)
+                        value = ((CompMilkable)comp).Fullness.ToStringPercent();
+                    }
+
+                    Widgets.Label(rect, value);
+                    break;
+
+                case objectType.AnimalWoolGrowth:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.shearable)
+                    {
+                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompShearable).FirstOrDefault();
+                        if (comp != null)
+                            value = ((CompShearable)comp).Fullness.ToStringPercent();
+                    }
+
+                    Widgets.Label(rect, value);
                     break;
 
                 case objectType.CurrentJob:

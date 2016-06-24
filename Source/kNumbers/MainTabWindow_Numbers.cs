@@ -431,6 +431,36 @@ namespace kNumbers
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).jobs.curDriver.GetReport()).ToList();
                             break;
 
+                        case KListObject.objectType.AnimalMilkFullness:
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(
+                                p => {
+                                    float f = -1;
+                                    if ((p as Pawn).ageTracker.CurLifeStage.milkable)
+                                    {
+                                        var comp = (p as Pawn).AllComps.Where<ThingComp>(x => x is CompMilkable).FirstOrDefault();
+                                        if (comp != null)
+                                            f = ((CompMilkable)comp).Fullness;
+                                    }
+                                    return f;
+                                }
+                            ).ToList();
+                            break;
+
+                        case KListObject.objectType.AnimalWoolGrowth:
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(
+                                p => {
+                                    float f = -1;
+                                    if ((p as Pawn).ageTracker.CurLifeStage.milkable)
+                                    {
+                                        var comp = (p as Pawn).AllComps.Where<ThingComp>(x => x is CompShearable).FirstOrDefault();
+                                        if (comp != null)
+                                            f = ((CompShearable)comp).Fullness;
+                                    }
+                                    return f;
+                                }
+                            ).ToList();
+                            break;
+
                         default:
                             //no way to sort
                             this.things = tempPawns.ToList();
@@ -562,7 +592,26 @@ namespace kNumbers
                 list.Add(new FloatMenuOption("koisama.Interaction".Translate(), action2, MenuOptionPriority.Medium, null, null));
             }
 
-            if (new[] { pawnType.Colonists, pawnType.Prisoners }.Contains(chosenPawnType))
+            if (chosenPawnType == pawnType.Animals)
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.AnimalMilkFullness, "MilkFullness".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("MilkFullness".Translate(), action, MenuOptionPriority.Medium, null, null));
+
+                Action action2 = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.AnimalWoolGrowth, "WoolGrowth".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("WoolGrowth".Translate(), action2, MenuOptionPriority.Medium, null, null));
+            }
+
+            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Animals }.Contains(chosenPawnType))
             {
                 Action action = delegate
                 {

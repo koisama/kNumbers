@@ -18,10 +18,11 @@ namespace kNumbers
             
             if (Scribe.mode == LoadSaveMode.LoadingVars)
             {
+                hasData = false;
                 SetDefaultValues();
             }
 
-            if(Scribe.mode == LoadSaveMode.Saving) { 
+            if(Scribe.mode == LoadSaveMode.Saving) {
                 savedKLists = MainTabWindow_Numbers.savedKLists;
                 chosenPawnType = MainTabWindow_Numbers.chosenPawnType;
             }
@@ -55,7 +56,10 @@ namespace kNumbers
         {
             if(Find.Map.GetComponent<MapComponent_Numbers>() == null)
             {
-                SetDefaultValues();
+                if (!hasData)
+                {
+                    SetDefaultValues();
+                }
                 Find.Map.components.Add(new MapComponent_Numbers());
             }
         }

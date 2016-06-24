@@ -58,7 +58,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y $(TargetFileName) C:\Misc\RimWorld1135Win\Mods\kNumbers\Assemblies
-copy /y $(TargetFileName) C:\Misc\kNumbers\Assemblies</PostBuildEvent>
+copy /y $(TargetFileName) ..\..\..\..\Assemblies</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
