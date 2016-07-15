@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 0.5.0
+Updated to A14 (0.14.1234)
+
 ## 0.4.4-A13
 Fixed the tab sometimes not loading saved layouts
 Added "age" column definition
