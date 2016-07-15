@@ -53,13 +53,13 @@ namespace kNumbers
         public override void PostOpen()
         {
             base.PostOpen();
-            this.currentWindowRect.size = this.InitialWindowSize;
+            this.windowRect.size = this.InitialSize;
         }
 
         public override void DoWindowContents(Rect inRect)
         {
             base.DoWindowContents(inRect);
-            this.currentWindowRect.size = this.InitialWindowSize;
+            this.windowRect.size = this.InitialSize;
         }
 
 		protected virtual void BuildPawnList()
@@ -107,13 +107,13 @@ namespace kNumbers
 			Rect position = rect3.ContractedBy(3f);
             if (p is Pawn)
             {
-			    if ((p as Pawn).health.summaryHealth.SummaryHealthPercent < 0.99f)
+			    if ((p as Pawn).health.summaryHealth.SummaryHealthPercent < 0.999f)
 			    {
 				    Rect rect4 = new Rect(rect3);
 				    rect4.xMin -= 4f;
 				    rect4.yMin += 4f;
 				    rect4.yMax -= 6f;
-				    Widgets.FillableBar(rect4, (p as Pawn).health.summaryHealth.SummaryHealthPercent, PawnUIOverlay.OverlayHealthTex, BaseContent.ClearTex, false);
+				    Widgets.FillableBar(rect4, (p as Pawn).health.summaryHealth.SummaryHealthPercent, GenWorldUI.OverlayHealthTex, BaseContent.ClearTex, false);
 			    }
             }
 			if (Mouse.IsOver(rect3))
@@ -137,10 +137,10 @@ namespace kNumbers
 			rect5.xMin += 15f;
 			Widgets.Label(rect5, label);
 			Text.WordWrap = true;
-			if (Widgets.InvisibleButton(rect3))
+			if (Widgets.ButtonInvisible(rect3))
 			{
 				Find.MainTabsRoot.EscapeCurrentTab(true);
-				Find.CameraMap.JumpTo(p.PositionHeld);
+                Find.CameraDriver.JumpTo(p.PositionHeld);
 				Find.Selector.ClearSelection();
 				if (p.Spawned)
 				{
@@ -232,7 +232,8 @@ namespace kNumbers
 
             MethodInfo statsToDraw = typeof(StatsReportUtility).GetMethod("StatsToDraw", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod, null, new Type[] { typeof(Thing) }, null);
 
-            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfColony);
+
+            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.SpaceSoldier, Faction.OfPlayer);
             pawnHumanlikeStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).OrderBy( stat => stat.LabelCap ).ToList();
             pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.label == "mood").Select(x => x.def).ToList()); //why it's not normally returned is beyond me
             pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList());
@@ -255,7 +256,8 @@ namespace kNumbers
         {
             get
             {
-                return Path.Combine(GenFilePaths.ConfigFolderPath, "kNumbers.config");
+                //TODO: FIX!!!
+                return Path.Combine(GenFilePaths.ConfigFilePath, "kNumbers.config");
             }
         }
 
@@ -293,7 +295,7 @@ namespace kNumbers
             return
                    !p.IsPrisoner &&
                    (
-                    ((p.Faction != null) && p.Faction.HostileTo(Faction.OfColony)) ||
+                    ((p.Faction != null) && p.Faction.HostileTo(Faction.OfPlayer)) ||
                     (!p.RaceProps.Animal && (!p.RaceProps.Humanlike || p.RaceProps.IsMechanoid)) 
                    ) && 
                    !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
@@ -301,14 +303,14 @@ namespace kNumbers
 
         bool isWildAnimal(Pawn p)
         {
-            return p.RaceProps.Animal && (p.Faction != Faction.OfColony) && !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
+            return p.RaceProps.Animal && (p.Faction != Faction.OfPlayer) && !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
         }
 
         bool isGuest(Pawn p)
         {
             return
                    (p.guest != null) && !p.guest.IsPrisoner &&
-                   (p.Faction != null) && !p.Faction.HostileTo(Faction.OfColony) && p.Faction != Faction.OfColony && 
+                   (p.Faction != null) && !p.Faction.HostileTo(Faction.OfPlayer) && p.Faction != Faction.OfPlayer && 
                    !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
         }
 
@@ -348,7 +350,7 @@ namespace kNumbers
                     break;
 
                 case pawnType.Animals:
-                    tempPawns = (from p in Find.MapPawns.PawnsInFaction(Faction.OfColony) where p.RaceProps.Animal select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.MapPawns.PawnsInFaction(Faction.OfPlayer) where p.RaceProps.Animal select p).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
@@ -504,7 +506,7 @@ namespace kNumbers
 
                 list.Add(new FloatMenuOption(("koisama.pawntype."+pawn.ToString()).Translate(), action, MenuOptionPriority.Medium, null, null));
             }
-            Find.WindowStack.Add(new FloatMenu(list, false));
+            Find.WindowStack.Add(new FloatMenu(list));
         }
 
         public void StatsOptionsMaker()
@@ -521,7 +523,7 @@ namespace kNumbers
                 };
                 list.Add(new FloatMenuOption(stat.LabelCap, action, MenuOptionPriority.Medium, null, null));
             }
-            Find.WindowStack.Add(new FloatMenu(list, false));
+            Find.WindowStack.Add(new FloatMenu(list));
         }
 
         public void SkillsOptionsMaker()
@@ -537,7 +539,7 @@ namespace kNumbers
                 };
                 list.Add(new FloatMenuOption(skill.LabelCap, action, MenuOptionPriority.Medium, null, null));
             }
-            Find.WindowStack.Add(new FloatMenu(list, false));
+            Find.WindowStack.Add(new FloatMenu(list));
         }
 
         public void NeedsOptionsMaker()
@@ -553,7 +555,7 @@ namespace kNumbers
                 };
                 list.Add(new FloatMenuOption(need.LabelCap, action, MenuOptionPriority.Medium, null, null));
             }
-            Find.WindowStack.Add(new FloatMenu(list, false));
+            Find.WindowStack.Add(new FloatMenu(list));
         }
 
         //presets
@@ -651,7 +653,7 @@ namespace kNumbers
                 list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Medium, null, null));
             }
 
-            Find.WindowStack.Add(new FloatMenu(list, false));
+            Find.WindowStack.Add(new FloatMenu(list));
         }
 
         public override void DoWindowContents(Rect r)
@@ -675,7 +677,7 @@ namespace kNumbers
 
             //pawn/prisoner list switch
             Rect sourceButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-            if (Widgets.TextButton(sourceButton, ("koisama.pawntype." + chosenPawnType.ToString()).Translate()))
+            if (Widgets.ButtonText(sourceButton, ("koisama.pawntype." + chosenPawnType.ToString()).Translate()))
             {
                 PawnSelectOptionsMaker();
             }
@@ -684,7 +686,7 @@ namespace kNumbers
 
             //stats btn
             Rect addColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-            if (Widgets.TextButton(addColumnButton, "koisama.Numbers.AddColumnLabel".Translate()))
+            if (Widgets.ButtonText(addColumnButton, "koisama.Numbers.AddColumnLabel".Translate()))
             {
                 StatsOptionsMaker();
             }
@@ -694,7 +696,7 @@ namespace kNumbers
             if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies }.Contains(chosenPawnType))
             {
                 Rect skillColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-                if (Widgets.TextButton(skillColumnButton, "koisama.Numbers.AddSkillColumnLabel".Translate()))
+                if (Widgets.ButtonText(skillColumnButton, "koisama.Numbers.AddSkillColumnLabel".Translate()))
                 {
                     SkillsOptionsMaker();
                 }
@@ -703,14 +705,14 @@ namespace kNumbers
 
             //needs btn
             Rect needsColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-            if (Widgets.TextButton(needsColumnButton, "koisama.Numbers.AddNeedsColumnLabel".Translate()))
+            if (Widgets.ButtonText(needsColumnButton, "koisama.Numbers.AddNeedsColumnLabel".Translate()))
             {
                 NeedsOptionsMaker();
             }
             x += buttonWidth + 10;
 
             Rect otherColumnBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-            if (Widgets.TextButton(otherColumnBtn, "koisama.Numbers.AddOtherColumnLabel".Translate()))
+            if (Widgets.ButtonText(otherColumnBtn, "koisama.Numbers.AddOtherColumnLabel".Translate()))
             {
                 OtherOptionsMaker();
             }
@@ -719,7 +721,7 @@ namespace kNumbers
             //TODO: implement
             /*
             Rect addPresetBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-            if (Widgets.TextButton(addPresetBtn, "koisama.Numbers.SetPresetLabel".Translate()))
+            if (Widgets.ButtonText(addPresetBtn, "koisama.Numbers.SetPresetLabel".Translate()))
             {
                 PresetOptionsMaker();
             }
@@ -734,7 +736,7 @@ namespace kNumbers
             Rect nameLabel = new Rect(x, 75f, NameColumnWidth, PawnRowHeight);
             Text.Anchor = TextAnchor.LowerCenter;
             Widgets.Label(nameLabel, "koisama.Numbers.Name".Translate());
-            if (Widgets.InvisibleButton(nameLabel))
+            if (Widgets.ButtonInvisible(nameLabel))
             {
                 if (chosenOrderBy == orderBy.Name)
                 {
@@ -779,7 +781,7 @@ namespace kNumbers
                 TooltipHandler.TipRegion(defLabel, labelSB.ToString());
                 Widgets.DrawHighlightIfMouseover(defLabel);
 
-                if (Widgets.InvisibleButton(defLabel))
+                if (Widgets.ButtonInvisible(defLabel))
                 {
                     if (Event.current.button == 1)
                     {

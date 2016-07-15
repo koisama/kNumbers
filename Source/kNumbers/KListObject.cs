@@ -260,7 +260,7 @@ namespace kNumbers
                 GUI.color = HighlightColor;
                 GUI.DrawTexture(rect, TexUI.HighlightTex);
             }
-            if (Widgets.InvisibleButton(rect) && Event.current.button == 1)
+            if (Widgets.ButtonInvisible(rect) && Event.current.button == 1)
             {
                 List<FloatMenuOption> list = new List<FloatMenuOption>();
                 list.Add(new FloatMenuOption("ThingInfo".Translate(), delegate
@@ -298,7 +298,7 @@ namespace kNumbers
                     }
                     list.Add(new FloatMenuOption("DropThing".Translate(), action, MenuOptionPriority.Medium, null, null));
                 }
-                FloatMenu window = new FloatMenu(list, thing.LabelCap, false, false);
+                FloatMenu window = new FloatMenu(list, thing.LabelCap, false);
                 Find.WindowStack.Add(window);
             }
             GUI.BeginGroup(rect);
@@ -354,7 +354,7 @@ namespace kNumbers
                 MedicalCareCategory mc = (MedicalCareCategory)i;
                 Widgets.DrawHighlightIfMouseover(rect2);
                 GUI.DrawTexture(rect2, careTextures[i]);
-                if (Widgets.InvisibleButton(rect2))
+                if (Widgets.ButtonInvisible(rect2))
                 {
                     medCare = mc;
                 }
@@ -421,7 +421,7 @@ namespace kNumbers
                             GUI.DrawTexture(rect, TexUI.HighlightTex);
                         }
                         bool getsFood = (ownerPawn as Pawn).guest.GetsFood;
-                        Widgets.LabelCheckbox(new Rect(rect.x + 8f, rect.y + 3f, 27f, 27f), "", ref getsFood, false);
+                        Widgets.CheckboxLabeled(new Rect(rect.x + 8f, rect.y + 3f, 27f, 27f), "", ref getsFood, false);
                         (ownerPawn as Pawn).guest.GetsFood = getsFood;
                     }
                     break;
