@@ -202,21 +202,24 @@ namespace kNumbers
             {
                 num2 *= Mathf.InverseLerp(0f, 50f, rect.height);
             }
+
+            
+
             Text.Font = ((rect.height <= 55f) ? GameFont.Tiny : GameFont.Small);
             Text.Anchor = TextAnchor.UpperLeft;
             Rect rect3 = new Rect(rect.x, rect.y + rect.height / 2f, rect.width, rect.height / 2f);
             rect3 = new Rect(rect3.x + num3, rect3.y, rect3.width - num3 * 2f, rect3.height - num2);
-            Widgets.FillableBar(rect3, need.CurLevel);
+            Widgets.FillableBar(rect3, need.CurLevelPercentage);
             Widgets.FillableBarChangeArrows(rect3, need.GUIChangeArrow);
             List<float> threshPercents = (List<float>)needThreshPercent.GetValue(need);
             if (threshPercents != null)
             {
                 for (int i = 0; i < threshPercents.Count; i++)
                 {
-                    needDrawBarThreshold(rect3, threshPercents[i], need.CurLevel);
+                    needDrawBarThreshold(rect3, threshPercents[i], need.CurLevelPercentage);
                 }
             }
-            float curInstantLevel = need.CurInstantLevel;
+            float curInstantLevel = need.CurInstantLevelPercentage;
             if (curInstantLevel >= 0f)
             {
                 needDrawBarInstantMarkerAt(rect3, curInstantLevel);

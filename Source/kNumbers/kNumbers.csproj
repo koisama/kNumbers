@@ -57,7 +57,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y $(TargetFileName) C:\Misc\RimWorld1234Win\Mods\kNumbers\Assemblies
+    <PostBuildEvent>copy /y $(TargetFileName) C:\Misc\RimWorld1238Win\Mods\kNumbers\Assemblies
 copy /y $(TargetFileName) ..\..\..\..\Assemblies</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

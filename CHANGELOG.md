@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.1
+Fixed need bar overflowing 
+Built against 0.14.1238, also works on steam 0.14.1241
+
 ## 0.5.0
 Updated to A14 (0.14.1234)
 
