@@ -232,11 +232,10 @@ namespace kNumbers
 
             MethodInfo statsToDraw = typeof(StatsReportUtility).GetMethod("StatsToDraw", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod, null, new Type[] { typeof(Thing) }, null);
 
-
             tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.SpaceSoldier, Faction.OfPlayer);
+            
             pawnHumanlikeStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).OrderBy( stat => stat.LabelCap ).ToList();
-            pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.label == "mood").Select(x => x.def).ToList()); //why it's not normally returned is beyond me
-            pawnHumanlikeNeedDef.AddRange(tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList());
+            pawnHumanlikeNeedDef.AddRange(DefDatabase<NeedDef>.AllDefsListForReading);
 
             tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Thrumbo, null);
             pawnAnimalStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
@@ -257,7 +256,7 @@ namespace kNumbers
             get
             {
                 //TODO: FIX!!!
-                return Path.Combine(GenFilePaths.ConfigFilePath, "kNumbers.config");
+                return Path.Combine(GenFilePaths.ModsConfigFilePath, "kNumbers.config");
             }
         }
 
@@ -392,14 +391,10 @@ namespace kNumbers
                             break;
 
                         case KListObject.objectType.Need:
-                            //pause game if we're sorting by needs because these things change
-                            /*
-                            if (!Find.TickManager.Paused)
-                                Find.TickManager.TogglePaused();
-                                */
+
                             this.things = (from p in tempPawns
                                           where (p is Pawn) && !(p as Pawn).RaceProps.IsMechanoid && ((p as Pawn).needs != null)
-                                          orderby (p as Pawn).needs.TryGetNeed((NeedDef)sortObject.displayObject).CurLevel ascending
+                                          orderby ((p as Pawn).needs.TryGetNeed((NeedDef)sortObject.displayObject) != null ? (p as Pawn).needs.TryGetNeed((NeedDef)sortObject.displayObject).CurLevel : 0 ) ascending
                                           select p).ToList();
                             break;
 
@@ -415,6 +410,10 @@ namespace kNumbers
                                                     Pawn p1 = (p is Pawn)?(p as Pawn):(p as Corpse).innerPawn;
                                                     return (p1.equipment != null) ? ((p1.equipment.AllEquipment.Count() > 0) ? p1.equipment.AllEquipment.First().LabelCap : "") : "";
                                                     }).ToList();
+                            break;
+
+                        case KListObject.objectType.MentalState:
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy( p => (p as Pawn).MentalState != null ? (p as Pawn).MentalState.ToString() : "").ToList();
                             break;
 
                         case KListObject.objectType.ControlPrisonerGetsFood:
@@ -591,6 +590,14 @@ namespace kNumbers
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.Age".Translate(), action, MenuOptionPriority.Medium, null, null));
+
+                action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.MentalState, "koisama.MentalState".Translate(), null);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("koisama.MentalState".Translate(), action, MenuOptionPriority.Medium, null, null));
             }
 
             if (chosenPawnType == pawnType.Prisoners) {
@@ -679,7 +686,7 @@ namespace kNumbers
             Rect sourceButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
             if (Widgets.ButtonText(sourceButton, ("koisama.pawntype." + chosenPawnType.ToString()).Translate()))
             {
-                PawnSelectOptionsMaker();
+                PawnSelectOptionsMaker();                
             }
             x += buttonWidth + 10;
             TooltipHandler.TipRegion(sourceButton, new TipSignal("koisama.Numbers.ClickToToggle".Translate(), sourceButton.GetHashCode()));

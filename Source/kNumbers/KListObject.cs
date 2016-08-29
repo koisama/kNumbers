@@ -27,7 +27,8 @@ namespace kNumbers
             CurrentJob,
             AnimalMilkFullness,
             AnimalWoolGrowth,
-            Age
+            Age,
+            MentalState
         }
 
         public objectType oType;
@@ -128,6 +129,7 @@ namespace kNumbers
                     minWidthDesired = 40f;
                     break;
 
+                case objectType.MentalState:
                 case objectType.ControlPrisonerInteraction:
                     minWidthDesired = 160f;
                     break;
@@ -390,9 +392,9 @@ namespace kNumbers
                     StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.AppendLine(stat.LabelCap);
                     stringBuilder.AppendLine();
-                    stringBuilder.AppendLine(stat.description);                
+                    stringBuilder.AppendLine(stat.description);
                     TooltipHandler.TipRegion(rect, new TipSignal(stringBuilder.ToString(), rect.GetHashCode()));
-                    break;    
+                    break;
 
                 case objectType.Skill:
                     if ((ownerPawn is Pawn) && (ownerPawn as Pawn).RaceProps.Humanlike) DrawSkill(rect, ownerPawn as Pawn);
@@ -400,6 +402,20 @@ namespace kNumbers
 
                 case objectType.Need:
                     if (ownerPawn is Pawn) DrawNeed(rect, ownerPawn as Pawn);
+                    break;
+
+                case objectType.MentalState:
+                    Text.Font = GameFont.Tiny;
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn && (ownerPawn as Pawn).MentalState != null) { 
+                        string ms = ((ownerPawn as Pawn).MentalState.InspectLine);
+                        Widgets.Label(rect, ms);
+                        if (Mouse.IsOver(rect))
+                        {
+                            GUI.DrawTexture(rect, TexUI.HighlightTex);
+                        }
+                    }
+                    Text.Font = GameFont.Medium;
                     break;
 
                 case objectType.Age:
