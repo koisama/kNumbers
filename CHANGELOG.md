@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.5.2
+Updated to A15b (0.15.1280)
+Added drug needs
+Added mental state (other)
+
 ## 0.5.1
 Fixed need bar overflowing 
 Built against 0.14.1238, also works on steam 0.14.1241
