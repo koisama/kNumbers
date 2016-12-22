@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 0.6.0
+Updated to A16 (0.16.1393)
+
 ## 0.5.2
 Updated to A15b (0.15.1280)
 Added drug needs

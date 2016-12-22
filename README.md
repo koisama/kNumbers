@@ -18,7 +18,7 @@ Now it's possible!
 
 ### Download
 
-**Last update:** 29/08/2016 (updated to `0.5.2`)
+**Last update:** 22/12/2016 (updated to `0.6.0`)
 
 [Latest release](https://github.com/koisama/kNumbers/releases/latest)
 
