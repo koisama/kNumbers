@@ -113,7 +113,7 @@ namespace kNumbers
 				    rect4.xMin -= 4f;
 				    rect4.yMin += 4f;
 				    rect4.yMax -= 6f;
-				    Widgets.FillableBar(rect4, (p as Pawn).health.summaryHealth.SummaryHealthPercent, GenWorldUI.OverlayHealthTex, BaseContent.ClearTex, false);
+				    Widgets.FillableBar(rect4, (p as Pawn).health.summaryHealth.SummaryHealthPercent, GenMapUI.OverlayHealthTex, BaseContent.ClearTex, false);
 			    }
             }
 			if (Mouse.IsOver(rect3))
@@ -121,7 +121,7 @@ namespace kNumbers
 				GUI.DrawTexture(position, TexUI.HighlightTex);
 			}
 			string label;
-            Pawn p1 = (p is Corpse) ? (p as Corpse).innerPawn : p as Pawn;
+            Pawn p1 = (p is Corpse) ? (p as Corpse).InnerPawn : p as Pawn;
 			if (!p1.RaceProps.Humanlike && p1.Name != null && !p1.Name.Numerical)
 			{
 				label = p1.Name.ToStringShort.CapitalizeFirst() + ", " + p1.KindLabel;
@@ -297,12 +297,12 @@ namespace kNumbers
                     ((p.Faction != null) && p.Faction.HostileTo(Faction.OfPlayer)) ||
                     (!p.RaceProps.Animal && (!p.RaceProps.Humanlike || p.RaceProps.IsMechanoid)) 
                    ) && 
-                   !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
+                   !p.Position.Fogged(Find.VisibleMap) && (p.Position != IntVec3.Invalid);
         }
 
         bool isWildAnimal(Pawn p)
         {
-            return p.RaceProps.Animal && (p.Faction != Faction.OfPlayer) && !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
+            return p.RaceProps.Animal && (p.Faction != Faction.OfPlayer) && !p.Position.Fogged(Find.VisibleMap) && (p.Position != IntVec3.Invalid);
         }
 
         bool isGuest(Pawn p)
@@ -310,7 +310,7 @@ namespace kNumbers
             return
                    (p.guest != null) && !p.guest.IsPrisoner &&
                    (p.Faction != null) && !p.Faction.HostileTo(Faction.OfPlayer) && p.Faction != Faction.OfPlayer && 
-                   !p.Position.Fogged() && (p.Position != IntVec3.Invalid);
+                   !p.Position.Fogged(Find.VisibleMap) && (p.Position != IntVec3.Invalid);
         }
 
         void UpdatePawnList()
@@ -319,54 +319,53 @@ namespace kNumbers
 
             this.things.Clear();
             IEnumerable<ThingWithComps> tempPawns = new List<ThingWithComps>();
-
             switch (chosenPawnType)
             {
                 default:
                 case pawnType.Colonists:
-                    tempPawns = Find.MapPawns.FreeColonists.Select(p=>p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.mapPawns.FreeColonists.Select(p=>p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Prisoners:
-                    tempPawns = Find.MapPawns.PrisonersOfColony.Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.mapPawns.PrisonersOfColony.Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Guests:
-                    tempPawns = Find.MapPawns.AllPawns.Where(p => isGuest(p)).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.mapPawns.AllPawns.Where(p => isGuest(p)).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Enemies:
                    // tempPawns = Find.MapPawns.PawnsHostileToColony.Select(p => p as ThingWithComps).ToList();
-                    tempPawns = (from p in Find.MapPawns.AllPawns where isEnemy(p) select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isEnemy(p) select p).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Animals:
-                    tempPawns = (from p in Find.MapPawns.PawnsInFaction(Faction.OfPlayer) where p.RaceProps.Animal select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer) where p.RaceProps.Animal select p).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
 
                 case pawnType.WildAnimals:
-                    tempPawns = (from p in Find.MapPawns.AllPawns where isWildAnimal(p) select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isWildAnimal(p) select p).Select(p => p as ThingWithComps).ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
 
                 case pawnType.Corpses:
-                    tempPawns = Find.ListerThings.AllThings.Where(p => (p is Corpse) && (!(p as Corpse).innerPawn.RaceProps.Animal)).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (!(p as Corpse).InnerPawn.RaceProps.Animal)).Select(p => p as ThingWithComps).ToList();
                     pStatDef = new List<StatDef>();
                     pNeedDef = new List<NeedDef>();
                     break;
                 case pawnType.AnimalCorpses:
-                    tempPawns = Find.ListerThings.AllThings.Where(p => (p is Corpse) && (p as Corpse).innerPawn.RaceProps.Animal && !p.Position.Fogged()).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (p as Corpse).InnerPawn.RaceProps.Animal && !p.Position.Fogged(Find.VisibleMap)).Select(p => p as ThingWithComps).ToList();
                     pStatDef = new List<StatDef>();
                     pNeedDef = new List<NeedDef>();
                     break;
@@ -406,8 +405,8 @@ namespace kNumbers
                             break;
 
                         case KListObject.objectType.Gear:
-                            this.things = tempPawns.Where(p=>(p is Pawn)||((p is Corpse)&&(!(p as Corpse).innerPawn.RaceProps.Animal))).OrderBy(p => {
-                                                    Pawn p1 = (p is Pawn)?(p as Pawn):(p as Corpse).innerPawn;
+                            this.things = tempPawns.Where(p=>(p is Pawn)||((p is Corpse)&&(!(p as Corpse).InnerPawn.RaceProps.Animal))).OrderBy(p => {
+                                                    Pawn p1 = (p is Pawn)?(p as Pawn):(p as Corpse).InnerPawn;
                                                     return (p1.equipment != null) ? ((p1.equipment.AllEquipment.Count() > 0) ? p1.equipment.AllEquipment.First().LabelCap : "") : "";
                                                     }).ToList();
                             break;
@@ -503,7 +502,7 @@ namespace kNumbers
                     }
                 };
 
-                list.Add(new FloatMenuOption(("koisama.pawntype."+pawn.ToString()).Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption(("koisama.pawntype."+pawn.ToString()).Translate(), action, MenuOptionPriority.Default, null, null));
             }
             Find.WindowStack.Add(new FloatMenu(list));
         }
@@ -520,7 +519,7 @@ namespace kNumbers
                     if(fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption(stat.LabelCap, action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption(stat.LabelCap, action, MenuOptionPriority.Default, null, null));
             }
             Find.WindowStack.Add(new FloatMenu(list));
         }
@@ -536,7 +535,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption(skill.LabelCap, action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption(skill.LabelCap, action, MenuOptionPriority.Default, null, null));
             }
             Find.WindowStack.Add(new FloatMenu(list));
         }
@@ -552,7 +551,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption(need.LabelCap, action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption(need.LabelCap, action, MenuOptionPriority.Default, null, null));
             }
             Find.WindowStack.Add(new FloatMenu(list));
         }
@@ -577,7 +576,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("koisama.Equipment".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("koisama.Equipment".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
             //all living things
@@ -589,7 +588,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("koisama.Age".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("koisama.Age".Translate(), action, MenuOptionPriority.Default, null, null));
 
                 action = delegate
                 {
@@ -597,7 +596,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("koisama.MentalState".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("koisama.MentalState".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
             if (chosenPawnType == pawnType.Prisoners) {
@@ -607,7 +606,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("GetsFood".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("GetsFood".Translate(), action, MenuOptionPriority.Default, null, null));
 
                 Action action2 = delegate
                 {
@@ -615,7 +614,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("koisama.Interaction".Translate(), action2, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("koisama.Interaction".Translate(), action2, MenuOptionPriority.Default, null, null));
             }
 
             if (chosenPawnType == pawnType.Animals)
@@ -626,7 +625,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("MilkFullness".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("MilkFullness".Translate(), action, MenuOptionPriority.Default, null, null));
 
                 Action action2 = delegate
                 {
@@ -634,7 +633,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("WoolGrowth".Translate(), action2, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("WoolGrowth".Translate(), action2, MenuOptionPriority.Default, null, null));
             }
 
             //healable
@@ -646,7 +645,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("koisama.MedicalCare".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("koisama.MedicalCare".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
             if (! new[] { pawnType.Corpses, pawnType.AnimalCorpses }.Contains(chosenPawnType))
@@ -657,7 +656,7 @@ namespace kNumbers
                     if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Medium, null, null));
+                list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
             Find.WindowStack.Add(new FloatMenu(list));

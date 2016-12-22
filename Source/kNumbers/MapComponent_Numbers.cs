@@ -13,6 +13,11 @@ namespace kNumbers
 
         private List<KListObject> tmpKList;
 
+        public MapComponent_Numbers(Map map) : base(map)
+        {
+            this.map = map;
+        }
+        
         public override void ExposeData()
         {
             
@@ -54,13 +59,13 @@ namespace kNumbers
 
         public static void InitMapComponent()
         {
-            if(Find.Map.GetComponent<MapComponent_Numbers>() == null)
+            if(Find.VisibleMap.GetComponent<MapComponent_Numbers>() == null)
             {
                 if (!hasData)
                 {
                     SetDefaultValues();
                 }
-                Find.Map.components.Add(new MapComponent_Numbers());
+                Find.VisibleMap.components.Add(new MapComponent_Numbers(Find.VisibleMap));
             }
         }
     }

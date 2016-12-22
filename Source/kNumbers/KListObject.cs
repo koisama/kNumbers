@@ -161,7 +161,7 @@ namespace kNumbers
             if (!skill.TotallyDisabled)
             {
                 Rect rect3 = new Rect(position.xMax, 0f, rect.width - position.xMax, rect.height);
-                Widgets.FillableBar(rect3, (float)skill.level / 20f, SkillBarFillTex, SkillBarBgTex, false);
+                Widgets.FillableBar(rect3, (float)skill.Level / 20f, SkillBarFillTex, SkillBarBgTex, false);
             }
             Rect rect4 = new Rect(position.xMax + 4f, 0f, 999f, rect.height);
             rect4.yMin += 3f;
@@ -173,7 +173,7 @@ namespace kNumbers
             }
             else
             {
-                label = skill.level.ToStringCached();
+                label = skill.Level.ToStringCached();
             }
             GenUI.SetLabelAlign(TextAnchor.MiddleLeft);
             Widgets.Label(rect4, label);
@@ -235,7 +235,7 @@ namespace kNumbers
             float x = 0;
             float gWidth = 28f;
             float gHeight = 28f;
-            Pawn p1 = (ownerPawn is Pawn) ? (ownerPawn as Pawn) : (ownerPawn as Corpse).innerPawn;
+            Pawn p1 = (ownerPawn is Pawn) ? (ownerPawn as Pawn) : (ownerPawn as Corpse).InnerPawn;
             if (p1.RaceProps.Animal) return;
             if (p1.equipment != null)
             foreach(ThingWithComps thing in p1.equipment.AllEquipment)
@@ -271,7 +271,7 @@ namespace kNumbers
                 list.Add(new FloatMenuOption("ThingInfo".Translate(), delegate
                 {
                     Find.WindowStack.Add(new Dialog_InfoCard(thing));
-                }, MenuOptionPriority.Medium, null, null));
+                }, MenuOptionPriority.Default, null, null));
                 if (selPawn.IsColonistPlayerControlled)
                 {
                     Action action = null;
@@ -298,10 +298,10 @@ namespace kNumbers
                         Thing unused;
                         action = delegate
                         {
-                            selPawn.inventory.container.TryDrop(thing, selPawn.Position, ThingPlaceMode.Near, out unused);
+                            selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out unused);
                         };
-                    }
-                    list.Add(new FloatMenuOption("DropThing".Translate(), action, MenuOptionPriority.Medium, null, null));
+                    }   
+                    list.Add(new FloatMenuOption("DropThing".Translate(), action, MenuOptionPriority.Default, null, null));
                 }
                 FloatMenu window = new FloatMenu(list, thing.LabelCap, false);
                 Find.WindowStack.Add(window);
