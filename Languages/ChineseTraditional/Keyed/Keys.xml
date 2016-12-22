@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+	<koisama.Numbers.Title>屬性</koisama.Numbers.Title>
+    <koisama.Numbers.Name>名稱</koisama.Numbers.Name>
+	<koisama.Numbers.Count>行數</koisama.Numbers.Count>
+	<koisama.Numbers.ClickToToggle>點擊切換對象類型。</koisama.Numbers.ClickToToggle>
+	<koisama.Numbers.SortByTooltip>點擊以{0}進行排序。</koisama.Numbers.SortByTooltip>
+	<koisama.Numbers.RemoveTooltip>右鍵點擊刪除列。</koisama.Numbers.RemoveTooltip>
+	<koisama.Numbers.AddColumnLabel>添加統計</koisama.Numbers.AddColumnLabel>
+	<koisama.Numbers.AddSkillColumnLabel>添加技能</koisama.Numbers.AddSkillColumnLabel>
+	<koisama.Numbers.AddNeedsColumnLabel>添加需求</koisama.Numbers.AddNeedsColumnLabel>
+	<koisama.Numbers.AddOtherColumnLabel>添加其他</koisama.Numbers.AddOtherColumnLabel>
+	<koisama.Numbers.SetPresetLabel>預設</koisama.Numbers.SetPresetLabel>
+	
+	<koisama.CurrentJob>當前工作</koisama.CurrentJob>	
+	<koisama.Equipment>裝備</koisama.Equipment>
+	<koisama.Interaction>囚犯互動</koisama.Interaction>
+	<koisama.Interaction.description>獄卒該如何看待這名囚犯。</koisama.Interaction.description>
+	<koisama.MedicalCare>醫療保健</koisama.MedicalCare>
+	<koisama.Age>年齡</koisama.Age>
+	<koisama.MentalState>精神狀態</koisama.MentalState>
+	
+	<koisama.pawntype.Colonists>殖民者</koisama.pawntype.Colonists>
+	<koisama.pawntype.Enemies>敵人</koisama.pawntype.Enemies>
+	<koisama.pawntype.Prisoners>囚犯</koisama.pawntype.Prisoners>
+	<koisama.pawntype.Guests>訪客</koisama.pawntype.Guests>
+	<koisama.pawntype.Animals>動物</koisama.pawntype.Animals>
+	<koisama.pawntype.WildAnimals>野生動物</koisama.pawntype.WildAnimals>
+	<koisama.pawntype.Corpses>屍體</koisama.pawntype.Corpses>
+	<koisama.pawntype.AnimalCorpses>動物屍體</koisama.pawntype.AnimalCorpses>
+
+</LanguageData>
