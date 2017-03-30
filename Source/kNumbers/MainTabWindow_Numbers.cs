@@ -397,6 +397,14 @@ namespace kNumbers
                                           select p).ToList();
                             break;
 
+                        case KListObject.objectType.Capacity:
+
+                            this.things = (from p in tempPawns
+                                           where (p is Pawn) && ((p as Pawn).health != null)
+                                           orderby ((p as Pawn).health.capacities.GetEfficiency((PawnCapacityDef)sortObject.displayObject)) ascending
+                                           select p).ToList();
+                            break;
+
                         case KListObject.objectType.Skill:
                             this.things = (from p in tempPawns
                                           where (p is Pawn) && (p as Pawn).RaceProps.Humanlike && ((p as Pawn).skills != null)
@@ -552,6 +560,22 @@ namespace kNumbers
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption(need.LabelCap, action, MenuOptionPriority.Default, null, null));
+            }
+            Find.WindowStack.Add(new FloatMenu(list));
+        }
+
+        public void CapacityOptionsMaker()
+        {
+            List<FloatMenuOption> list = new List<FloatMenuOption>();
+            foreach (PawnCapacityDef pcd in DefDatabase<PawnCapacityDef>.AllDefsListForReading)
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.Capacity, pcd.LabelCap, pcd);
+                    if (fits(kl.minWidthDesired))
+                        kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption(pcd.LabelCap, action, MenuOptionPriority.Default, null, null));
             }
             Find.WindowStack.Add(new FloatMenu(list));
         }
@@ -714,6 +738,14 @@ namespace kNumbers
             if (Widgets.ButtonText(needsColumnButton, "koisama.Numbers.AddNeedsColumnLabel".Translate()))
             {
                 NeedsOptionsMaker();
+            }
+            x += buttonWidth + 10;
+
+            //cap btn
+            Rect capacityColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
+            if (Widgets.ButtonText(capacityColumnButton, "koisama.Numbers.AddCapacityColumnLabel".Translate()))
+            {
+                CapacityOptionsMaker();
             }
             x += buttonWidth + 10;
 

@@ -10,6 +10,7 @@
 	<koisama.Numbers.AddColumnLabel>Add stat</koisama.Numbers.AddColumnLabel>
 	<koisama.Numbers.AddSkillColumnLabel>Add skill</koisama.Numbers.AddSkillColumnLabel>
 	<koisama.Numbers.AddNeedsColumnLabel>Add need</koisama.Numbers.AddNeedsColumnLabel>
+  <koisama.Numbers.AddCapacityColumnLabel>Add capacity</koisama.Numbers.AddCapacityColumnLabel>
 	<koisama.Numbers.AddOtherColumnLabel>Add other</koisama.Numbers.AddOtherColumnLabel>
 	<koisama.Numbers.SetPresetLabel>Presets</koisama.Numbers.SetPresetLabel>
 	

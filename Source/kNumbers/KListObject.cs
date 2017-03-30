@@ -28,7 +28,8 @@ namespace kNumbers
             AnimalMilkFullness,
             AnimalWoolGrowth,
             Age,
-            MentalState
+            MentalState,
+            Capacity
         }
 
         public objectType oType;
@@ -115,6 +116,10 @@ namespace kNumbers
                 case objectType.AnimalWoolGrowth:
                 case objectType.Stat:
                     minWidthDesired = 80f;
+                    break;
+
+                case objectType.Capacity:
+                    minWidthDesired = 60f;
                     break;
 
                 case objectType.Need:
@@ -402,6 +407,30 @@ namespace kNumbers
 
                 case objectType.Need:
                     if (ownerPawn is Pawn) DrawNeed(rect, ownerPawn as Pawn);
+                    break;
+
+                case objectType.Capacity:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn)
+                    {
+                        Pawn p = (Pawn)ownerPawn;
+                        PawnCapacityDef cap = (PawnCapacityDef)displayObject;
+
+                        // I stole this one line from Fluffy's Medical Tab. THANKS FLUFFY!
+                        string capValue = (p.health.capacities.GetEfficiency(cap) * 100f).ToString("F0") + "%";
+
+                        Widgets.Label(rect, capValue);
+                        if (Mouse.IsOver(rect))
+                        {
+                            GUI.DrawTexture(rect, TexUI.HighlightTex);
+                        }
+
+                        StringBuilder stringBuilder2 = new StringBuilder();
+                        stringBuilder2.AppendLine(cap.LabelCap);
+                        stringBuilder2.AppendLine();
+                        stringBuilder2.AppendLine(cap.description);
+                        TooltipHandler.TipRegion(rect, new TipSignal(stringBuilder2.ToString(), rect.GetHashCode()));
+                    }
                     break;
 
                 case objectType.MentalState:
