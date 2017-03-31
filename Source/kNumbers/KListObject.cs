@@ -416,10 +416,16 @@ namespace kNumbers
                         Pawn p = (Pawn)ownerPawn;
                         PawnCapacityDef cap = (PawnCapacityDef)displayObject;
 
+                        Pair<string, Color> effLabel = HealthCardUtility.GetEfficiencyLabel(p, cap);
+                        string pawnCapTip = HealthCardUtility.GetPawnCapacityTip(p, cap);
+
+                        
                         // I stole this one line from Fluffy's Medical Tab. THANKS FLUFFY!
                         string capValue = (p.health.capacities.GetEfficiency(cap) * 100f).ToString("F0") + "%";
-
+                        GUI.color = effLabel.Second;
                         Widgets.Label(rect, capValue);
+                        GUI.color = Color.white;
+
                         if (Mouse.IsOver(rect))
                         {
                             GUI.DrawTexture(rect, TexUI.HighlightTex);
