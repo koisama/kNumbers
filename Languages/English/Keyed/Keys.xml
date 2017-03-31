@@ -2,7 +2,7 @@
 <LanguageData>
 
 	<koisama.Numbers.Title>Numbers overview</koisama.Numbers.Title>
-    <koisama.Numbers.Name>Name</koisama.Numbers.Name>
+  <koisama.Numbers.Name>Name</koisama.Numbers.Name>
 	<koisama.Numbers.Count>Row Count</koisama.Numbers.Count>
 	<koisama.Numbers.ClickToToggle>Click to select object type.</koisama.Numbers.ClickToToggle>
 	<koisama.Numbers.SortByTooltip>Click to sort by {0}.</koisama.Numbers.SortByTooltip>
