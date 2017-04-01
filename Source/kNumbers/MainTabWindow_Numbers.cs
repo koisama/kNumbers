@@ -25,16 +25,18 @@ namespace kNumbers
         protected Vector2 scrollPosition = Vector2.zero;
 
         protected List<ThingWithComps> things = new List<ThingWithComps>();
-/*
-        protected List<Pawn> pawns
-        {
-            set
-            {
-                this.things = value.Select(p=>p as ThingWithComps).ToList();
-            }
-        }
-*/
-		protected int ThingsCount
+
+        public float kListDesiredWidth = 0f;
+        /*
+                protected List<Pawn> pawns
+                {
+                    set
+                    {
+                        this.things = value.Select(p=>p as ThingWithComps).ToList();
+                    }
+                }
+        */
+        protected int ThingsCount
 		{
 			get
 			{
@@ -74,7 +76,9 @@ namespace kNumbers
 
 		protected void DrawRows(Rect outRect)
 		{
-			Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, (float)this.things.Count * PawnRowHeight);
+            float winWidth = outRect.width - 16f;
+            Rect viewRect = new Rect(0f, 0f, winWidth, (float)this.things.Count * PawnRowHeight);
+
 			Widgets.BeginScrollView(outRect, ref this.scrollPosition, viewRect);
 			float num = 0f;
 			for (int i = 0; i < this.things.Count; i++)
@@ -218,11 +222,12 @@ namespace kNumbers
         {
             get
             {
-                return new Vector2(maxWindowWidth, 90f + (float)base.ThingsCount * PawnRowHeight + 65f);
+                float maxWidth = (maxWindowWidth > kListDesiredWidth + 70) ? maxWindowWidth : kListDesiredWidth + 70;
+                return new Vector2(maxWidth, 90f + (float)base.ThingsCount * PawnRowHeight + 65f + 16f);
             }
         }
 
-        float kListDesiredWidth = 0f;
+        
         
         
 
@@ -247,7 +252,7 @@ namespace kNumbers
                 savedKLists.Add(pType, new List<KListObject>());
             }
 
-            MapComponent_Numbers.InitMapComponent();
+            MapComponent_Numbers.InitMapComponent();  
 
         }
 
@@ -524,7 +529,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.Stat, stat.LabelCap, stat);
-                    if(fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption(stat.LabelCap, action, MenuOptionPriority.Default, null, null));
@@ -540,7 +545,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.Skill, skill.LabelCap, skill);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption(skill.LabelCap, action, MenuOptionPriority.Default, null, null));
@@ -556,7 +561,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.Need, need.LabelCap, need);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption(need.LabelCap, action, MenuOptionPriority.Default, null, null));
@@ -572,7 +577,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.Capacity, pcd.LabelCap, pcd);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption(pcd.LabelCap, action, MenuOptionPriority.Default, null, null));
@@ -597,7 +602,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.Gear, "koisama.Equipment".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.Equipment".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -609,7 +614,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.Age, "koisama.Age".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.Age".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -617,7 +622,7 @@ namespace kNumbers
                 action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.MentalState, "koisama.MentalState".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.MentalState".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -627,7 +632,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.ControlPrisonerGetsFood, "GetsFood".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("GetsFood".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -635,7 +640,7 @@ namespace kNumbers
                 Action action2 = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.ControlPrisonerInteraction, "koisama.Interaction".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.Interaction".Translate(), action2, MenuOptionPriority.Default, null, null));
@@ -646,7 +651,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.AnimalMilkFullness, "MilkFullness".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("MilkFullness".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -654,7 +659,7 @@ namespace kNumbers
                 Action action2 = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.AnimalWoolGrowth, "WoolGrowth".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("WoolGrowth".Translate(), action2, MenuOptionPriority.Default, null, null));
@@ -666,7 +671,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.ControlMedicalCare, "koisama.MedicalCare".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.MedicalCare".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -677,7 +682,7 @@ namespace kNumbers
                 Action action = delegate
                 {
                     KListObject kl = new KListObject(KListObject.objectType.CurrentJob, "koisama.CurrentJob".Translate(), null);
-                    if (fits(kl.minWidthDesired))
+                    //if (fits(kl.minWidthDesired))
                         kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Default, null, null));

@@ -86,6 +86,13 @@ namespace kNumbers
                     Scribe_Defs.LookDef(ref tempObjectN, "displayObject");
                     displayObject = tempObjectN;
                     break;
+
+                case objectType.Capacity:
+                    PawnCapacityDef tempObjectCap = (PawnCapacityDef)displayObject;
+                    Scribe_Defs.LookDef(ref tempObjectCap, "displayObject");
+                    displayObject = tempObjectCap;
+                    break;
+
             }
 
         }
@@ -100,7 +107,6 @@ namespace kNumbers
 
         public KListObject(objectType type, string defName, object dObject)
         {
-            
             this.oType = type;
             this.label = defName;
             this.displayObject = dObject;

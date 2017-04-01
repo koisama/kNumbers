@@ -40,6 +40,12 @@ namespace kNumbers
                     tmpKList = savedKLists[type];
                     Scribe_Collections.LookList<KListObject>(ref tmpKList, "klist-" + type, LookMode.Deep);
                     savedKLists[type] = tmpKList;
+
+                    /*foreach(KListObject obj in tmpKList)
+                    {
+                        Log.Message("scribe loaded object "+ obj.oType.ToString() + ", " + obj.label + "," + (obj.displayObject == null? "NULL!" : obj.displayObject.ToString()));
+                    }*/
+
                 }
                 hasData = true;
             }
