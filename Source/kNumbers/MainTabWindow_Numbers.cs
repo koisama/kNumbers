@@ -143,9 +143,26 @@ namespace kNumbers
 			Text.WordWrap = true;
 			if (Widgets.ButtonInvisible(rect3))
 			{
-				Find.MainTabsRoot.EscapeCurrentTab(true);
-                Find.CameraDriver.JumpTo(p.PositionHeld);
-				Find.Selector.ClearSelection();
+                //shift-selection: keep tab, don't deselect, don't move camera
+                if (Event.current.shift)
+                {
+                    //do nothing
+                }
+                //alt-selection: deselect, remove tab
+                else if (Event.current.alt)
+                {
+                    Find.MainTabsRoot.EscapeCurrentTab(true);
+                    Find.Selector.ClearSelection();
+                }
+                //normal selection: remove tab, deselect, move camera
+                else
+                {
+                    Find.MainTabsRoot.EscapeCurrentTab(true);
+                    Find.Selector.ClearSelection();
+                    Find.CameraDriver.JumpTo(p.PositionHeld);
+                }
+
+                //finally select if pawn is present
 				if (p.Spawned)
 				{
 					Find.Selector.Select(p, true, true);

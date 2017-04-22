@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 0.6.3
+Fixed https://github.com/koisama/kNumbers/issues/21
+ - probably related: fixed animals, corpses, enemies and other tabs not displaying contents sometimes
+Implemented https://github.com/koisama/kNumbers/issues/19
+ - press alt to select colonist without camera jump
+Implemented https://github.com/koisama/kNumbers/issues/18
+ - press shift and click to select multiple colonists
+
+## 0.6.1
+Merged capacities patch - works just like medical info
+Merged Spanish translation
+Merged Russian translation
+ 
 ## 0.6.0
 Updated to A16 (0.16.1393)
 

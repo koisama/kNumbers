@@ -551,7 +551,7 @@ namespace kNumbers
                     break;
 
                 case objectType.CurrentJob:
-                    if(ownerPawn is Pawn)
+                    if(ownerPawn is Pawn && ((Pawn)ownerPawn).jobs.curDriver != null )
                     {
                         string text = ((Pawn)ownerPawn).jobs.curDriver.GetReport();
                         Text.Anchor = TextAnchor.MiddleLeft;
