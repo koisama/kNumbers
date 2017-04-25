@@ -13,7 +13,9 @@ namespace kNumbers
 		private static Settings _settings;
 		public static void Initialize(ref Settings settings)
 		{
-			_settings = settings;
+			if (Current.Root_Play == null) {
+				return;
+			}
 			if (Current.Root_Play.gameObject.GetComponent<Tracker>() != null) {
 				return;
 			}
@@ -21,13 +23,9 @@ namespace kNumbers
 				Log.Error("Current.Root_Play.gameObject.AddComponent<Settings>() == null");
 				return;
 			}
-
+			_settings = settings;
 		}
 
-		void OnApplicationQuit()
-		{
-			PersistentDataManager.SaveFrom(ref _settings);
-		}
 		void OnDestroy()
 		{
 			PersistentDataManager.SaveFrom(ref _settings);

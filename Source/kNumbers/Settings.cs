@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -8,25 +9,129 @@ using Verse;
 
 namespace kNumbers
 {
-	public static class Log
+	public class Settings : IExposable
 	{
-		public static void Message(string text)
+		public static bool LayoutIsValid;
+		private static LayoutCollection layouts = new LayoutCollection();
+		public static List<Layout> Layouts
 		{
-			Verse.Log.Message("[Numbers] " + text);
+			get => layouts?.ToList();
 		}
-		public static void Warning(string text)
+		private static string activity;
+		public static Layout ActivityLayout
 		{
-			Verse.Log.Warning("[Numbers] " + text);
+			get {
+				if (activity.NullOrEmpty()) {
+					return null;
+				}
+				return layouts.TryGetValue(activity, out Layout layout) ? layout : null;
+			}
+
+			set => activity = value?.name;
 		}
-		public static void Error(string text)
+
+		public virtual void ExposeData()
 		{
-			Verse.Log.Error("[Numbers] " + text);
+			if (!(Scribe.mode == LoadSaveMode.Saving || Scribe.mode == LoadSaveMode.LoadingVars))
+				return;
+
+			var tmp = new List<Layout>(layouts);
+
+			Scribe_Values.LookValue(ref activity, "activity");
+			Scribe_Collections.LookList(ref tmp, "layouts", LookMode.Deep);
+
+			#region postload
+			if (Scribe.mode == LoadSaveMode.LoadingVars) {
+				layouts = new LayoutCollection(tmp);
+				postload();
+			}
+			#endregion
+
 		}
+
+		private static void postload()
+		{
+#if DEBUG
+			{
+				var strings = layouts?.Select(l => l.name).ToArray();
+				if (strings.NullOrEmpty()) {
+					strings = new[] { "null" };
+				}
+				Log.Message($"postLoad. activity: '{activity}', Layouts: {string.Join(", ", strings)}");
+			}
+#endif
+			if (layouts == null || layouts.Count == 0 || (layouts[0]?.name).NullOrEmpty()) {
+				Log.Error("invalid layouts.");
+				LayoutIsValid = false;
+				layouts = new LayoutCollection();
+				return;
+			}
+			LayoutIsValid = true;
+			if (activity.NullOrEmpty()) {
+				activity = layouts.FirstOrDefault()?.name;
+			}
+			ActivityLayout = layouts.Where(l => {
+				return l.name == activity;
+			}).SingleOrDefault();
+		}
+
+		public static void NewLayout(string layoutName = null)
+		{
+			if (layoutName.NullOrEmpty()) {
+				do {
+					layoutName = string.Format("{0} {1}", defaultLayoutName, ++layoutCount);
+				} while (layouts.Contains(layoutName));
+			} else if (layouts.Contains(layoutName)) {
+				Log.Error("Name Is In Use");
+				return;
+			}
+			layouts.Add(new Layout { name = layoutName });
+			activity = layoutName;
+		}
+
+		public static bool DeleteLayout(string layoutName = null)
+		{
+			if (layoutName.NullOrEmpty()) {
+				layouts.Clear();
+				return true;
+			}
+			if (activity == layoutName) {
+				activity = layouts.FirstOrDefault()?.name;
+				if (activity.NullOrEmpty()) {
+					NewLayout();
+				}
+			}
+			return layouts.Remove(layoutName);
+		}
+
+		public static bool RenameLayout(string oldName, string newName)
+		{
+			if (oldName.NullOrEmpty() || newName.NullOrEmpty()) {
+				return false;
+			}
+			if (activity == oldName) {
+				activity = layouts.FirstOrDefault()?.name;
+				if (activity.NullOrEmpty()) {
+					NewLayout();
+				}
+			}
+			if (layouts.Contains(oldName)) {
+				layouts.ChangeItemKey(layouts[oldName], newName);
+				return true;
+			}
+
+			return false;
+		}
+
+		private static string defaultLayoutName = "Layout"; //FIX: translate
+		private static int layoutCount;
+
 	}
+
 	public class Layout : Settings
 	{
 		public string name;
-		public MainTabWindow_Numbers.pawnType chosenPawnType = MainTabWindow_Numbers.pawnType.Colonists;
+		public MainTabWindow_Numbers.pawnType chosenPawnType;
 		public Dictionary<MainTabWindow_Numbers.pawnType, List<KListObject>> savedKLists = new Dictionary<MainTabWindow_Numbers.pawnType, List<KListObject>>();
 		private List<KListObject> tmpKList = new List<KListObject>();
 
@@ -58,135 +163,69 @@ namespace kNumbers
 			}
 			Log.Message(msg.ToString());
 #endif
-			if (Scribe.mode == LoadSaveMode.Saving || Scribe.mode == LoadSaveMode.LoadingVars) {
-				Scribe_Values.LookValue(ref name, "layoutName");
-				Scribe_Values.LookValue(ref chosenPawnType, "chosenPawnType");
+			if (!(Scribe.mode == LoadSaveMode.Saving || Scribe.mode == LoadSaveMode.LoadingVars))
+				return;
 
-				foreach (MainTabWindow_Numbers.pawnType type in Enum.GetValues(typeof(MainTabWindow_Numbers.pawnType))) {
-					if (savedKLists.TryGetValue(type, out tmpKList)) {
-						savedKLists.Remove(type);
-					};
-					Scribe_Collections.LookList(ref tmpKList, "klist-" + type, LookMode.Deep);
-					savedKLists.Add(type, tmpKList);
-				}
+			Scribe_Values.LookValue(ref name, "layoutName");
+			Scribe_Values.LookValue(ref chosenPawnType, "chosenPawnType");
+
+			foreach (MainTabWindow_Numbers.pawnType type in Enum.GetValues(typeof(MainTabWindow_Numbers.pawnType))) {
+				if (savedKLists.TryGetValue(type, out tmpKList)) {
+					savedKLists.Remove(type);
+				};
+				Scribe_Collections.LookList(ref tmpKList, "klist-" + type, LookMode.Deep);
+				savedKLists.Add(type, tmpKList);
 			}
+
 		}
 	}
-	public class Settings : IExposable
+
+	public class LayoutCollection : KeyedCollection<string, Layout>
 	{
-
-		public virtual void ExposeData()
+		public LayoutCollection(IEnumerable<Layout> layouts = null) : base(null, 0)
 		{
-			#region BeforeSaving
-			if (Scribe.mode == LoadSaveMode.Saving) {
-				Layouts = new List<Layout>(layoutDict.Values);
-			}
-			#endregion
-
-			if (Scribe.mode == LoadSaveMode.Saving || Scribe.mode == LoadSaveMode.LoadingVars) {
-				Scribe_Values.LookValue(ref activity, "activity");
-				Scribe_Collections.LookList(ref Layouts, "layouts", LookMode.Deep);
-			}
-
-			#region AfterLoading
-			if (Scribe.mode == LoadSaveMode.LoadingVars) {
-#if DEBUG
-				{
-					var strings = Layouts.Select(l => l.name).ToArray();
-					if (strings.NullOrEmpty()) {
-						strings = new[] { "null" };
-					}
-					Log.Message($"Settings Loading. activity: '{activity}', Layouts: {string.Join(", ", strings)}");
-				}
-#endif
-				if (Layouts == null || Layouts.Count == 0 || (Layouts[0]?.name).NullOrEmpty()) {
-					Log.Error("invalid settigns.");
-					Layouts = null;
-					return;
-				}
-				if (activity.NullOrEmpty()) {
-					activity = Layouts.First()?.name;
-				}
-				ActivityLayout = Layouts.Where(l => {
-					var name = l.name;
-					if (layoutDict.TryGetValue(name, out Layout layout)) {
-						layoutDict.Remove(name);
-					}
-					layoutDict.Add(name, l);
-					return name == activity;
-				}).SingleOrDefault();
-			}
-			#endregion
-		}
-
-		private static Dictionary<string, Layout> layoutDict = new Dictionary<string, Layout>();
-		public List<Layout> Layouts;
-
-		private static string activity;
-		public static Layout ActivityLayout
-		{
-			get {
-				if (activity.NullOrEmpty()) {
-					return null;
-				}
-				if (layoutDict.TryGetValue(activity, out Layout layout)) {
-					return layout;
-				}
-				return null;
-			}
-			set => activity = value?.name;
-		}
-
-		public static void NewLayout(string layoutName = null)
-		{
-			if (layoutName.NullOrEmpty()) {
-				do {
-					layoutName = string.Format("{0} {1}", defaultLayoutName, ++layoutCount);
-				} while (layoutDict.ContainsKey(layoutName));
-			} else if (layoutDict.ContainsKey(layoutName)) {
-				Log.Error("Name Is In Use");
+			if (layouts == null) {
 				return;
 			}
-			layoutDict.Add(layoutName, new Layout { name = layoutName });
-			activity = layoutName;
+			foreach (var item in layouts) {
+				Add(item);
+			}
 		}
 
-		public static bool DeleteLayout(string layoutName = null)
+		protected override string GetKeyForItem(Layout item)
 		{
-			if (layoutName.NullOrEmpty()) {
-				layoutDict.Clear();
-				return true;
-			}
-			if (activity == layoutName) {
-				activity = layoutDict.Keys.FirstOrDefault();
-				if (activity.NullOrEmpty()) {
-					NewLayout();
+			return item.name;
+		}
+
+		internal new void ChangeItemKey(Layout item, string newKey)
+		{
+			item.name = newKey;
+			base.ChangeItemKey(item, newKey);
+		}
+
+		public ICollection<string> Keys
+		{
+			get {
+				if (Dictionary != null) {
+					return Dictionary.Keys;
+				} else {
+					return new Collection<string>(this.Select(GetKeyForItem).ToArray());
 				}
 			}
-			return layoutDict.Remove(layoutName);
 		}
 
-		public static bool RenameLayout(string oldName, string newName)
+		public bool TryGetValue(string key, out Layout value)
 		{
-			if (oldName.NullOrEmpty() || newName.NullOrEmpty()) {
-				return false;
+			if (Dictionary != null) {
+				return Dictionary.TryGetValue(key, out value);
+			} else if (key == null) {
+				throw new ArgumentNullException("key");
 			}
-			if (activity == oldName) {
-				activity = layoutDict.Keys.FirstOrDefault();
-				if (activity.NullOrEmpty()) {
-					NewLayout();
-				}
-			}
-			if (layoutDict.TryGetValue(oldName, out Layout layout)) {
-				layoutDict.Remove(oldName);
-				layout.name = newName;
-				layoutDict.Add(newName, layout);
-				return true;
-			}
-			return false;
+			value = this.SingleOrDefault(x => x.name == key);
+			return value != null;
 		}
 
-		private static string defaultLayoutName = "Layout";
-		private static int layoutCount;
 	}
+
+
 }

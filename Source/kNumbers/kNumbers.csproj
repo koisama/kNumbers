@@ -38,6 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="KListObject.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="MainTabWindow_Numbers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PersistentDataManager.cs" />

@@ -227,7 +227,7 @@ namespace kNumbers
 		}
 
 		public static Settings settings = new Settings();
-		private static pawnType chosenPawnType = pawnType.Colonists;
+		private static pawnType chosenPawnType;
 		private static Dictionary<pawnType, List<KListObject>> savedKLists;
 
 		public MainTabWindow_Numbers()
@@ -248,14 +248,19 @@ namespace kNumbers
 			PersistentDataManager.LoadTo(ref settings);
 #if DEBUG
 			{
-				var strings = settings.Layouts?.Select(l => l.name).ToArray();
+				var strings = Settings.Layouts?.Select(l => l.name).ToArray();
 				if (strings.NullOrEmpty()) {
 					strings = new[] { "null" };
 				}
 				Log.Message($"After load settings. ActivityLayout: '{Settings.ActivityLayout?.name}', Layouts: {string.Join(", ", strings)}\n\tchosenPawnType: {Enum.GetName(typeof(pawnType), chosenPawnType)}");
 			}
 #endif
-			if (settings.Layouts == null) {
+			if (settings == null) {
+				Log.Error("invaild settings");
+				settings = new Settings();
+			}
+
+			if (!Settings.LayoutIsValid) {
 				Log.Message($"New Layout");
 				Settings.NewLayout();
 				Settings.ActivityLayout.savedKLists = savedKLists = new Dictionary<pawnType, List<KListObject>>();
@@ -264,7 +269,6 @@ namespace kNumbers
 				}
 				PersistentDataManager.SaveFrom(ref settings);
 			}
-			Settings.ActivityLayout.chosenPawnType = chosenPawnType;
 			Tracker.Initialize(ref settings);
 		}
 
@@ -295,7 +299,7 @@ namespace kNumbers
 			kList = savedKLists[chosenPawnType];
 #if DEBUG
 			{
-				var strings = settings.Layouts?.Select(l => l.name).ToArray();
+				var strings = Settings.Layouts?.Select(l => l.name).ToArray();
 				if (strings.NullOrEmpty()) {
 					strings = new[] { "null" };
 				}
@@ -518,6 +522,7 @@ namespace kNumbers
 						if (kList == null)
 							kList = new List<KListObject>();
 						chosenPawnType = pawn;
+						Settings.ActivityLayout.chosenPawnType = chosenPawnType;
 						isDirty = true;
 					}
 				};

@@ -10,7 +10,7 @@ using Verse;
 
 namespace kNumbers
 {
-	[StaticConstructorOnStartup]
+	//[StaticConstructorOnStartup]
 	public static class PersistentDataManager
 	{
 		private const string folderName = "Numbers";
@@ -24,14 +24,16 @@ namespace kNumbers
 		{
 			return Path.GetFullPath(path);
 		}
+		/*
 		static PersistentDataManager()
 		{
-			//Log.Message(Path.Combine(folderPath, fileName));
+			Log.Message(Scribe.DebugOutputFor(new Settings()));
+			Log.Message(Path.Combine(folderPath, fileName));
 		}
-
+		*/
 		private static void loadsave<T>(ref T data)
 		{
-			Scribe_Deep.LookDeep(ref data, settingsNodeName, new object[0]);
+			Scribe_Deep.LookDeep(ref data, settingsNodeName);
 		}
 
 		public static void LoadTo<T>(ref T data)
@@ -43,8 +45,11 @@ namespace kNumbers
 			try {
 				Scribe.InitLoading(fullPath);
 				loadsave(ref data);
+			} catch (System.Xml.XmlException) {
+				data = default(T);
 			} finally {
-				Scribe.FinalizeLoading();
+				Scribe.curParent = null;
+				Scribe.mode = LoadSaveMode.Inactive;
 			}
 		}
 
