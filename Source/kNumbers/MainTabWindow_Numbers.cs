@@ -159,7 +159,7 @@ namespace kNumbers
                 {
                     Find.MainTabsRoot.EscapeCurrentTab(true);
                     Find.Selector.ClearSelection();
-                    Find.CameraDriver.JumpTo(p.PositionHeld);
+                    Find.CameraDriver.JumpToVisibleMapLoc(p.PositionHeld);
                 }
 
                 //finally select if pawn is present
@@ -423,7 +423,7 @@ namespace kNumbers
 
                             this.things = (from p in tempPawns
                                            where (p is Pawn) && ((p as Pawn).health != null)
-                                           orderby ((p as Pawn).health.capacities.GetEfficiency((PawnCapacityDef)sortObject.displayObject)) ascending
+                                           orderby ((p as Pawn).health.capacities.GetLevel((PawnCapacityDef)sortObject.displayObject)) ascending
                                            select p).ToList();
                             break;
 
@@ -437,7 +437,7 @@ namespace kNumbers
                         case KListObject.objectType.Gear:
                             this.things = tempPawns.Where(p=>(p is Pawn)||((p is Corpse)&&(!(p as Corpse).InnerPawn.RaceProps.Animal))).OrderBy(p => {
                                                     Pawn p1 = (p is Pawn)?(p as Pawn):(p as Corpse).InnerPawn;
-                                                    return (p1.equipment != null) ? ((p1.equipment.AllEquipment.Count() > 0) ? p1.equipment.AllEquipment.First().LabelCap : "") : "";
+                                                    return (p1.equipment != null) ? ((p1.equipment.AllEquipmentListForReading.Any()) ? p1.equipment.AllEquipmentListForReading.First().LabelCap : "") : "";
                                                     }).ToList();
                             break;
 

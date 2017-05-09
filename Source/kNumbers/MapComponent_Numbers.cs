@@ -34,11 +34,11 @@ namespace kNumbers
 
             if (Scribe.mode == LoadSaveMode.LoadingVars || Scribe.mode == LoadSaveMode.Saving)
             {
-                Scribe_Values.LookValue<MainTabWindow_Numbers.pawnType>(ref chosenPawnType, "chosenPawnType", MainTabWindow_Numbers.pawnType.Colonists);
+                Scribe_Values.Look<MainTabWindow_Numbers.pawnType>(ref chosenPawnType, "chosenPawnType", MainTabWindow_Numbers.pawnType.Colonists);
                 foreach (MainTabWindow_Numbers.pawnType type in Enum.GetValues(typeof(MainTabWindow_Numbers.pawnType)))
                 {
                     tmpKList = savedKLists[type];
-                    Scribe_Collections.LookList<KListObject>(ref tmpKList, "klist-" + type, LookMode.Deep);
+                    Scribe_Collections.Look<KListObject>(ref tmpKList, "klist-" + type, LookMode.Deep);
                     savedKLists[type] = tmpKList;
 
                     /*foreach(KListObject obj in tmpKList)
