@@ -290,26 +290,26 @@ namespace kNumbers
                     Apparel ap = thing as Apparel;
                     if (ap != null)
                     {
-                        Apparel unused;
                         action = delegate
-                        {
-                            selPawn.apparel.TryDrop(ap, out unused, selPawn.Position, true);
+						{
+							Apparel unused;
+							selPawn.apparel.TryDrop(ap, out unused, selPawn.Position, true);
                         };
                     }
                     else if (eq != null && selPawn.equipment.AllEquipmentListForReading.Contains(eq))
                     {
-                        ThingWithComps unused;
                         action = delegate
-                        {
-                            selPawn.equipment.TryDropEquipment(eq, out unused, selPawn.Position, true);
+						{
+							ThingWithComps unused;
+							selPawn.equipment.TryDropEquipment(eq, out unused, selPawn.Position, true);
                         };
                     }
                     else if (!thing.def.destroyOnDrop)
                     {
-                        Thing unused;
                         action = delegate
-                        {
-                            selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out unused);
+						{
+							Thing unused;
+							selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out unused);
                         };
                     }   
                     list.Add(new FloatMenuOption("DropThing".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -513,9 +513,9 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.milkable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompMilkable).FirstOrDefault();
+                        var comp = ownerPawn.AllComps.OfType<CompMilkable>().FirstOrDefault();
                         if(comp != null)
-                        value = ((CompMilkable)comp).Fullness.ToStringPercent();
+                        value = comp.Fullness.ToStringPercent();
                     }
 
                     Widgets.Label(rect, value);
@@ -525,9 +525,9 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.shearable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompShearable).FirstOrDefault();
+                        var comp = ownerPawn.AllComps.OfType<CompShearable>().FirstOrDefault();
                         if (comp != null)
-                            value = ((CompShearable)comp).Fullness.ToStringPercent();
+                            value = comp.Fullness.ToStringPercent();
                     }
 
                     Widgets.Label(rect, value);

@@ -330,49 +330,49 @@ namespace kNumbers
             {
                 default:
                 case pawnType.Colonists:
-                    tempPawns = Find.VisibleMap.mapPawns.FreeColonists.Select(p=>p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.mapPawns.FreeColonists.Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Prisoners:
-                    tempPawns = Find.VisibleMap.mapPawns.PrisonersOfColony.Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.mapPawns.PrisonersOfColony.Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Guests:
-                    tempPawns = Find.VisibleMap.mapPawns.AllPawns.Where(p => isGuest(p)).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.mapPawns.AllPawns.Where(isGuest).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Enemies:
-                   // tempPawns = Find.MapPawns.PawnsHostileToColony.Select(p => p as ThingWithComps).ToList();
-                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isEnemy(p) select p).Select(p => p as ThingWithComps).ToList();
+                   // tempPawns = Find.MapPawns.PawnsHostileToColony.Cast<ThingWithComps>().ToList();
+                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isEnemy(p) select p).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
                 case pawnType.Animals:
-                    tempPawns = (from p in Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer) where p.RaceProps.Animal select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer) where p.RaceProps.Animal select p).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
 
                 case pawnType.WildAnimals:
-                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isWildAnimal(p) select p).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isWildAnimal(p) select p).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
 
                 case pawnType.Corpses:
-                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (!(p as Corpse).InnerPawn.RaceProps.Animal)).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (!(p as Corpse).InnerPawn.RaceProps.Animal)).Cast<ThingWithComps>().ToList();
                     pStatDef = new List<StatDef>();
                     pNeedDef = new List<NeedDef>();
                     break;
                 case pawnType.AnimalCorpses:
-                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (p as Corpse).InnerPawn.RaceProps.Animal && !p.Position.Fogged(Find.VisibleMap)).Select(p => p as ThingWithComps).ToList();
+                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (p as Corpse).InnerPawn.RaceProps.Animal && !p.Position.Fogged(Find.VisibleMap)).Cast<ThingWithComps>().ToList();
                     pStatDef = new List<StatDef>();
                     pNeedDef = new List<NeedDef>();
                     break;
@@ -456,9 +456,9 @@ namespace kNumbers
                                     float f = -1;
                                     if ((p as Pawn).ageTracker.CurLifeStage.milkable)
                                     {
-                                        var comp = (p as Pawn).AllComps.Where<ThingComp>(x => x is CompMilkable).FirstOrDefault();
+                                        var comp = p.AllComps.OfType<CompMilkable>().FirstOrDefault();
                                         if (comp != null)
-                                            f = ((CompMilkable)comp).Fullness;
+                                            f = comp.Fullness;
                                     }
                                     return f;
                                 }
@@ -471,9 +471,9 @@ namespace kNumbers
                                     float f = -1;
                                     if ((p as Pawn).ageTracker.CurLifeStage.milkable)
                                     {
-                                        var comp = (p as Pawn).AllComps.Where<ThingComp>(x => x is CompShearable).FirstOrDefault();
+                                        var comp = p.AllComps.OfType<CompShearable>().FirstOrDefault();
                                         if (comp != null)
-                                            f = ((CompShearable)comp).Fullness;
+                                            f = comp.Fullness;
                                     }
                                     return f;
                                 }

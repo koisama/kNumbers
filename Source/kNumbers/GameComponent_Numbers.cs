@@ -21,12 +21,12 @@ namespace kNumbers
 	    public override void ExposeData()
 	    {
 
-			Scribe_Values.Look<MainTabWindow_Numbers.pawnType>(ref chosenPawnType, "chosenPawnType", MainTabWindow_Numbers.pawnType.Colonists);
+			Scribe_Values.Look(ref chosenPawnType, "chosenPawnType", MainTabWindow_Numbers.pawnType.Colonists);
 			foreach (MainTabWindow_Numbers.pawnType type in Enum.GetValues(typeof(MainTabWindow_Numbers.pawnType)))
 			{
 				List<KListObject> tmpKList;
 				savedKLists.TryGetValue(type, out tmpKList);
-				Scribe_Collections.Look<KListObject>(ref tmpKList, "klist-" + type, LookMode.Deep);
+				Scribe_Collections.Look(ref tmpKList, "klist-" + type, LookMode.Deep);
 				savedKLists[type] = tmpKList;
 
 				/*foreach(KListObject obj in tmpKList ?? Enumerable.Empty<KListObject>())
