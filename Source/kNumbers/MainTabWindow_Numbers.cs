@@ -279,7 +279,7 @@ namespace kNumbers
 
         public override void PreOpen()
         {
-		    var component = Current.Game.GetComponent<GameComponent_Numbers>();
+		    var component = Find.World.GetComponent<WorldComponent_Numbers>();
 		    component.savedKLists.TryGetValue(component.chosenPawnType, out kList);
 		    if (kList == null)
 		    {
@@ -322,7 +322,7 @@ namespace kNumbers
 
         void UpdatePawnList()
         {
-			var component = Current.Game.GetComponent<GameComponent_Numbers>();
+			var component = Find.World.GetComponent<WorldComponent_Numbers>();
 			
             this.things.Clear();
             IEnumerable<ThingWithComps> tempPawns = new List<ThingWithComps>();
@@ -506,7 +506,7 @@ namespace kNumbers
             {
                 Action action = delegate
 				{
-					var component = Current.Game.GetComponent<GameComponent_Numbers>();
+					var component = Find.World.GetComponent<WorldComponent_Numbers>();
 					if (pawn != component.chosenPawnType)
                     {
 						component.savedKLists.TryGetValue(pawn, out kList);
@@ -599,7 +599,7 @@ namespace kNumbers
         //other hardcoded options
         public void OtherOptionsMaker()
 		{
-			var component = Current.Game.GetComponent<GameComponent_Numbers>();
+			var component = Find.World.GetComponent<WorldComponent_Numbers>();
 			List<FloatMenuOption> list = new List<FloatMenuOption>();
             
             //equipment bearers            
@@ -699,7 +699,7 @@ namespace kNumbers
 
         public override void DoWindowContents(Rect r)
 		{
-			var component = Current.Game.GetComponent<GameComponent_Numbers>();
+			var component = Find.World.GetComponent<WorldComponent_Numbers>();
 			maxWindowWidth = Screen.width;
             base.DoWindowContents(r);
 
