@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KListObject.cs" />
-    <Compile Include="MapComponent_Numbers.cs" />
+    <Compile Include="WorldComponent_Numbers.cs" />
     <Compile Include="MainTabWindow_Numbers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -63,33 +63,33 @@ namespace kNumbers
         public void ExposeData()
         {
             
-            Scribe_Values.LookValue<objectType>(ref oType, "oType");
-            Scribe_Values.LookValue<float>(ref minWidthDesired, "minWidthDesired");
-            Scribe_Values.LookValue<string>(ref this.label, "label");
+            Scribe_Values.Look<objectType>(ref oType, "oType");
+            Scribe_Values.Look<float>(ref minWidthDesired, "minWidthDesired");
+            Scribe_Values.Look<string>(ref this.label, "label");
 
             switch (oType)
             {
                 case objectType.Stat:
                     StatDef tempObjectS = (StatDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectS, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectS, "displayObject");
                     displayObject = tempObjectS;
                     break;
 
                 case objectType.Skill:
                     SkillDef tempObjectK = (SkillDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectK, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectK, "displayObject");
                     displayObject = tempObjectK;
                     break;
 
                 case objectType.Need:
                     NeedDef tempObjectN = (NeedDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectN, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectN, "displayObject");
                     displayObject = tempObjectN;
                     break;
 
                 case objectType.Capacity:
                     PawnCapacityDef tempObjectCap = (PawnCapacityDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectCap, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectCap, "displayObject");
                     displayObject = tempObjectCap;
                     break;
 
@@ -249,7 +249,7 @@ namespace kNumbers
             Pawn p1 = (ownerPawn is Pawn) ? (ownerPawn as Pawn) : (ownerPawn as Corpse).InnerPawn;
             if (p1.RaceProps.Animal) return;
             if (p1.equipment != null)
-            foreach(ThingWithComps thing in p1.equipment.AllEquipment)
+            foreach(ThingWithComps thing in p1.equipment.AllEquipmentListForReading)
                 {
                     Rect rect2 = new Rect(x, 0, gWidth, gHeight);
                     DrawThing(rect2, thing, p1);
@@ -290,26 +290,26 @@ namespace kNumbers
                     Apparel ap = thing as Apparel;
                     if (ap != null)
                     {
-                        Apparel unused;
                         action = delegate
-                        {
-                            selPawn.apparel.TryDrop(ap, out unused, selPawn.Position, true);
+						{
+							Apparel unused;
+							selPawn.apparel.TryDrop(ap, out unused, selPawn.Position, true);
                         };
                     }
-                    else if (eq != null && selPawn.equipment.AllEquipment.Contains(eq))
+                    else if (eq != null && selPawn.equipment.AllEquipmentListForReading.Contains(eq))
                     {
-                        ThingWithComps unused;
                         action = delegate
-                        {
-                            selPawn.equipment.TryDropEquipment(eq, out unused, selPawn.Position, true);
+						{
+							ThingWithComps unused;
+							selPawn.equipment.TryDropEquipment(eq, out unused, selPawn.Position, true);
                         };
                     }
                     else if (!thing.def.destroyOnDrop)
                     {
-                        Thing unused;
                         action = delegate
-                        {
-                            selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out unused);
+						{
+							Thing unused;
+							selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out unused);
                         };
                     }   
                     list.Add(new FloatMenuOption("DropThing".Translate(), action, MenuOptionPriority.Default, null, null));
@@ -427,7 +427,7 @@ namespace kNumbers
 
                         
                         // I stole this one line from Fluffy's Medical Tab. THANKS FLUFFY!
-                        string capValue = (p.health.capacities.GetEfficiency(cap) * 100f).ToString("F0") + "%";
+                        string capValue = (p.health.capacities.GetLevel(cap) * 100f).ToString("F0") + "%";
                         GUI.color = effLabel.Second;
                         Widgets.Label(rect, capValue);
                         GUI.color = Color.white;
@@ -488,39 +488,22 @@ namespace kNumbers
 
                 case objectType.ControlPrisonerInteraction:
                     if (ownerPawn is Pawn)
-                    {
-                        if (Mouse.IsOver(rect))
-                        {
-                            GUI.DrawTexture(rect, TexUI.HighlightTex);
-                        }
-                        float x = 8f;
+		            {
+			            if (Mouse.IsOver(rect)) { GUI.DrawTexture(rect, TexUI.HighlightTex); }
+			            float x = 8f;
 
-                        GUI.BeginGroup(rect);
-                        IEnumerator enumerator = Enum.GetValues(typeof(PrisonerInteractionMode)).GetEnumerator();
-                        try
-                        {
-                            while (enumerator.MoveNext())
-                            {
-                                PrisonerInteractionMode prisonerInteractionMode = (PrisonerInteractionMode)((byte)enumerator.Current);
-                                if (Widgets.RadioButton(new Vector2(x, 3f), (ownerPawn as Pawn).guest.interactionMode == prisonerInteractionMode))
-                                {
-                                    (ownerPawn as Pawn).guest.interactionMode = prisonerInteractionMode;
-                                }
-                                TooltipHandler.TipRegion(new Rect(x, 0f, 30f, 30f), new TipSignal(prisonerInteractionMode.GetLabel()));
-                                x += 30f;
-                            }
-                        }
-                        finally
-                        {
-                            IDisposable disposable = enumerator as IDisposable;
-                            if (disposable != null)
-                            {
-                                disposable.Dispose();
-                            }
-                        }
-                        GUI.EndGroup();
-                    }
-                    break;
+			            GUI.BeginGroup(rect);
+
+			            foreach (var prisonerInteractionMode in DefDatabase<PrisonerInteractionModeDef>.AllDefs)
+			            {
+				            if (Widgets.RadioButton(new Vector2(x, 3f), (ownerPawn as Pawn).guest.interactionMode == prisonerInteractionMode)) { (ownerPawn as Pawn).guest.interactionMode = prisonerInteractionMode; }
+				            TooltipHandler.TipRegion(new Rect(x, 0f, 30f, 30f), new TipSignal(prisonerInteractionMode.GetLabel()));
+				            x += 30f;
+			            }
+
+			            GUI.EndGroup();
+		            }
+		            break;
 
                 case objectType.ControlMedicalCare:
                     if (ownerPawn is Pawn) MedicalCareSetter(rect, ref (ownerPawn as Pawn).playerSettings.medCare);
@@ -530,9 +513,9 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.milkable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompMilkable).FirstOrDefault();
+                        var comp = ownerPawn.AllComps.OfType<CompMilkable>().FirstOrDefault();
                         if(comp != null)
-                        value = ((CompMilkable)comp).Fullness.ToStringPercent();
+                        value = comp.Fullness.ToStringPercent();
                     }
 
                     Widgets.Label(rect, value);
@@ -542,9 +525,9 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.shearable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompShearable).FirstOrDefault();
+                        var comp = ownerPawn.AllComps.OfType<CompShearable>().FirstOrDefault();
                         if (comp != null)
-                            value = ((CompShearable)comp).Fullness.ToStringPercent();
+                            value = comp.Fullness.ToStringPercent();
                     }
 
                     Widgets.Label(rect, value);
