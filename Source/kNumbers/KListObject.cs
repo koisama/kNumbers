@@ -25,6 +25,7 @@ namespace kNumbers
             ControlMedicalCare,
             ControlPrisonerInteraction,
             CurrentJob,
+            QueuedJob,
             AnimalMilkFullness,
             AnimalWoolGrowth,
             Age,
@@ -150,8 +151,10 @@ namespace kNumbers
                     break;
 
                 case objectType.CurrentJob:
+                case objectType.QueuedJob:
                     minWidthDesired = 260f;
                     break;
+                    
             }
 
         }
@@ -552,9 +555,33 @@ namespace kNumbers
                     break;
 
                 case objectType.CurrentJob:
-                    if(ownerPawn is Pawn && ((Pawn)ownerPawn).jobs.curDriver != null )
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs.curDriver != null)
                     {
                         string text = ((Pawn)ownerPawn).jobs.curDriver.GetReport();
+                        Text.Anchor = TextAnchor.MiddleLeft;
+                        Rect tRect = new Rect(rect.xMin + 2, rect.yMin + 3, rect.width - 2, rect.height);
+                        GenText.SetTextSizeToFit(text, tRect);
+
+                        if (Text.Font == GameFont.Tiny)
+                            Widgets.Label(tRect, text);
+                        else
+                        {
+                            Rect sRect = new Rect(rect.xMin + 2, rect.yMin, rect.width - 2, rect.height);
+                            Widgets.Label(sRect, text);
+                        }
+
+                        if (Mouse.IsOver(rect))
+                        {
+                            GUI.DrawTexture(rect, TexUI.HighlightTex);
+                        }
+                    }
+
+                    break;
+
+                case objectType.QueuedJob:
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs.jobQueue.Count > 0)
+                    {
+                        string text =((Pawn)ownerPawn).jobs.jobQueue[0].job.GetReport((Pawn)ownerPawn);
                         Text.Anchor = TextAnchor.MiddleLeft;
                         Rect tRect = new Rect(rect.xMin + 2, rect.yMin + 3, rect.width - 2, rect.height);
                         GenText.SetTextSizeToFit(text, tRect);

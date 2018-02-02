@@ -450,6 +450,21 @@ namespace kNumbers
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).jobs.curDriver.GetReport()).ToList();
                             break;
 
+                        case KListObject.objectType.QueuedJob:
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(
+                                p => {
+                                    string j = "";
+                                    if ((p as Pawn).jobs.curJob != null && (p as Pawn).jobs.jobQueue.Count > 0)
+                                    {
+                                        j = (p as Pawn).jobs.jobQueue[0].job.GetReport(p as Pawn);
+                                    }
+                                    return j;
+                                }
+                            ).ToList();
+                            break;
+
+
+
                         case KListObject.objectType.AnimalMilkFullness:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(
                                 p => {
@@ -693,6 +708,17 @@ namespace kNumbers
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Default, null, null));
+            }
+
+            if (!new[] { pawnType.Corpses, pawnType.AnimalCorpses }.Contains(component.chosenPawnType))
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.QueuedJob, "koisama.QueuedJob".Translate(), null);
+                    //if (fits(kl.minWidthDesired))
+                    kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("koisama.QueuedJob".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
             Find.WindowStack.Add(new FloatMenu(list));
