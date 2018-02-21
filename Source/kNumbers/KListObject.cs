@@ -500,27 +500,16 @@ namespace kNumbers
                         float x = 8f;
 
                         GUI.BeginGroup(rect);
-                        IEnumerator enumerator = Enum.GetValues(typeof(PrisonerInteractionModeDef)).GetEnumerator();
-                        try
+                        foreach (PrisonerInteractionModeDef current in from prisonerinteractionmode in DefDatabase<PrisonerInteractionModeDef>.AllDefs
+                                                                                        orderby prisonerinteractionmode.listOrder
+                                                                                        select prisonerinteractionmode)
                         {
-                            while (enumerator.MoveNext())
+                            if (Widgets.RadioButton(new Vector2(x, 3f), (ownerPawn as Pawn).guest.interactionMode == current))
                             {
-                                PrisonerInteractionModeDef prisonerInteractionMode = (PrisonerInteractionModeDef)(enumerator.Current);
-                                if (Widgets.RadioButton(new Vector2(x, 3f), (ownerPawn as Pawn).guest.interactionMode == prisonerInteractionMode))
-                                {
-                                    (ownerPawn as Pawn).guest.interactionMode = prisonerInteractionMode;
-                                }
-                                TooltipHandler.TipRegion(new Rect(x, 0f, 30f, 30f), new TipSignal(prisonerInteractionMode.label));
-                                x += 30f;
+                                (ownerPawn as Pawn).guest.interactionMode = current;
                             }
-                        }
-                        finally
-                        {
-                            IDisposable disposable = enumerator as IDisposable;
-                            if (disposable != null)
-                            {
-                                disposable.Dispose();
-                            }
+                            TooltipHandler.TipRegion(new Rect(x, 0f, 30f, 30f), new TipSignal(current.LabelCap));
+                            x += 30f;
                         }
                         GUI.EndGroup();
                     }
