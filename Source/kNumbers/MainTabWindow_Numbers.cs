@@ -666,6 +666,13 @@ namespace kNumbers
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.Interaction".Translate(), action2, MenuOptionPriority.Default, null, null));
+
+                Action action3 = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.objectType.PrisonerRecruitmentDifficulty, "RecruitmentDifficulty".Translate(), null);
+                    kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("RecruitmentDifficulty".Translate(), action3, MenuOptionPriority.Default, null, null));
             }
 
             if (component.chosenPawnType == pawnType.Animals)

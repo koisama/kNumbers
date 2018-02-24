@@ -24,6 +24,7 @@ namespace kNumbers
             ControlPrisonerGetsFood,
             ControlMedicalCare,
             ControlPrisonerInteraction,
+            PrisonerRecruitmentDifficulty,
             CurrentJob,
             QueuedJob,
             AnimalMilkFullness,
@@ -122,6 +123,7 @@ namespace kNumbers
                 case objectType.AnimalMilkFullness:
                 case objectType.AnimalWoolGrowth:
                 case objectType.Stat:
+                case objectType.PrisonerRecruitmentDifficulty:
                     minWidthDesired = 80f;
                     break;
 
@@ -513,6 +515,15 @@ namespace kNumbers
                         }
                         GUI.EndGroup();
                     }
+                    break;
+
+                case objectType.PrisonerRecruitmentDifficulty:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn)
+                    {
+                        value = (ownerPawn as Pawn).RecruitDifficulty(Faction.OfPlayer, false).ToStringPercent();
+                    }
+                    Widgets.Label(rect, value);
                     break;
 
                 case objectType.ControlMedicalCare:
