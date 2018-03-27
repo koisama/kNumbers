@@ -555,7 +555,7 @@ namespace kNumbers
                     break;
 
                 case objectType.CurrentJob:
-                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs.curDriver != null)
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs?.curDriver != null)
                     {
                         string text = ((Pawn)ownerPawn).jobs.curDriver.GetReport();
                         Text.Anchor = TextAnchor.MiddleLeft;
@@ -579,7 +579,7 @@ namespace kNumbers
                     break;
 
                 case objectType.QueuedJob:
-                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs.jobQueue.Count > 0)
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs?.jobQueue.Count > 0)
                     {
                         string text =((Pawn)ownerPawn).jobs.jobQueue[0].job.GetReport((Pawn)ownerPawn);
                         Text.Anchor = TextAnchor.MiddleLeft;

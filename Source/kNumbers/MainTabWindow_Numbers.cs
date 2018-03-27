@@ -435,7 +435,11 @@ namespace kNumbers
                             break;
 
                         case KListObject.objectType.ControlPrisonerInteraction:
-                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).guest.interactionMode).ToList();
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).guest.interactionMode.index).ToList();
+                            break;
+
+                        case KListObject.objectType.PrisonerRecruitmentDifficulty:
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).RecruitDifficulty(Faction.OfPlayer, false)).ToList();
                             break;
 
                         case KListObject.objectType.Age:
@@ -447,14 +451,14 @@ namespace kNumbers
                             break;
 
                         case KListObject.objectType.CurrentJob:
-                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).jobs.curDriver.GetReport()).ToList();
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).jobs?.curDriver.GetReport()).ToList();
                             break;
 
                         case KListObject.objectType.QueuedJob:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(
                                 p => {
                                     string j = "";
-                                    if ((p as Pawn).jobs.curJob != null && (p as Pawn).jobs.jobQueue.Count > 0)
+                                    if ((p as Pawn).jobs?.curJob != null && (p as Pawn).jobs?.jobQueue.Count > 0)
                                     {
                                         j = (p as Pawn).jobs.jobQueue[0].job.GetReport(p as Pawn);
                                     }
@@ -462,8 +466,6 @@ namespace kNumbers
                                 }
                             ).ToList();
                             break;
-
-
 
                         case KListObject.objectType.AnimalMilkFullness:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(
@@ -840,6 +842,8 @@ namespace kNumbers
 
             //header
             //TODO: better interface - auto width calculation
+
+        //TODO: Reorderable Widget
             bool offset = true;
             kListDesiredWidth = 175f;
             Text.Anchor = TextAnchor.MiddleCenter;
