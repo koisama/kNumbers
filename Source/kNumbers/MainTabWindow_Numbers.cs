@@ -843,7 +843,13 @@ namespace kNumbers
             //header
             //TODO: better interface - auto width calculation
 
-        //TODO: Reorderable Widget
+            int reorderableGroup = ReorderableWidget.NewGroup(delegate (int from, int to)
+            {
+                KListObject oldKlistObject = kList[from];
+                kList.RemoveAt(from);
+                kList.Insert(to, oldKlistObject);
+            });
+
             bool offset = true;
             kListDesiredWidth = 175f;
             Text.Anchor = TextAnchor.MiddleCenter;
@@ -857,15 +863,20 @@ namespace kNumbers
                     break;
                 }
 
+
+
                 kListDesiredWidth += colWidth;
 
                 Rect defLabel = new Rect(x - 35, 25f + (offset ? 10f : 50f), colWidth + 70, 40f);
                 Widgets.DrawLine(new Vector2(x + colWidth / 2, 55f + (offset ? 15f : 55f)), new Vector2(x + colWidth / 2, 113f), Color.gray, 1);
                 Widgets.Label(defLabel, kList[i].label);
 
+                ReorderableWidget.Reorderable(reorderableGroup, defLabel);
+
                 StringBuilder labelSB = new StringBuilder();
                 labelSB.AppendLine("koisama.Numbers.SortByTooltip".Translate(kList[i].label));
                 labelSB.AppendLine("koisama.Numbers.RemoveTooltip".Translate());
+                labelSB.AppendLine("DragToReorder".Translate());
                 TooltipHandler.TipRegion(defLabel, labelSB.ToString());
                 Widgets.DrawHighlightIfMouseover(defLabel);
 
