@@ -649,6 +649,14 @@ namespace kNumbers
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.MentalState".Translate(), action, MenuOptionPriority.Default, null, null));
+
+                Action action2 = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.ObjectType.Race, "Race".Translate(), null);
+                    //if (fits(kl.minWidthDesired))
+                    kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("Race".Translate(), action2, MenuOptionPriority.Default, null, null));
             }
 
             if (component.chosenPawnType == PawnType.Prisoners)

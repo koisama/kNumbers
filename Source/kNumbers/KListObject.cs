@@ -32,6 +32,7 @@ namespace kNumbers
             AnimalEggProgress,
             Age,
             MentalState,
+            Race,
             Capacity
         }
 
@@ -123,6 +124,7 @@ namespace kNumbers
                 case ObjectType.AnimalWoolGrowth:
                 case ObjectType.Stat:
                 case ObjectType.PrisonerRecruitmentDifficulty:
+                case ObjectType.Race:
                     minWidthDesired = 80f;
                     break;
 
@@ -466,6 +468,16 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     string ageValue = ((ownerPawn as Pawn).ageTracker.AgeBiologicalYears.ToString());
                     Widgets.Label(rect, ageValue);
+                    if (Mouse.IsOver(rect))
+                    {
+                        GUI.DrawTexture(rect, TexUI.HighlightTex);
+                    }
+                    break;
+
+                case ObjectType.Race:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    string race = ((ownerPawn as Pawn).kindDef.race.LabelCap) ?? string.Empty;
+                    Widgets.Label(rect, race);
                     if (Mouse.IsOver(rect))
                     {
                         GUI.DrawTexture(rect, TexUI.HighlightTex);
