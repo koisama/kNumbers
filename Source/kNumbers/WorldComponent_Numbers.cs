@@ -7,19 +7,18 @@ namespace kNumbers
 {
     class WorldComponent_Numbers : WorldComponent
     {
-        public Dictionary<MainTabWindow_Numbers.pawnType, List<KListObject>> savedKLists = new Dictionary<MainTabWindow_Numbers.pawnType, List<KListObject>>();
-        public MainTabWindow_Numbers.pawnType chosenPawnType = new MainTabWindow_Numbers.pawnType();
+        public Dictionary<MainTabWindow_Numbers.PawnType, List<KListObject>> savedKLists = new Dictionary<MainTabWindow_Numbers.PawnType, List<KListObject>>();
+        public MainTabWindow_Numbers.PawnType chosenPawnType = new MainTabWindow_Numbers.PawnType();
         public static bool hasData = false;
 
         public WorldComponent_Numbers(World world) : base(world) { }
 
         public override void ExposeData()
         {
-            Scribe_Values.Look(ref chosenPawnType, "chosenPawnType", MainTabWindow_Numbers.pawnType.Colonists);
-            foreach (MainTabWindow_Numbers.pawnType type in Enum.GetValues(typeof(MainTabWindow_Numbers.pawnType)))
+            Scribe_Values.Look(ref chosenPawnType, "chosenPawnType", MainTabWindow_Numbers.PawnType.Colonists);
+            foreach (MainTabWindow_Numbers.PawnType type in Enum.GetValues(typeof(MainTabWindow_Numbers.PawnType)))
             {
-                List<KListObject> tmpKList;
-                savedKLists.TryGetValue(type, out tmpKList);
+                savedKLists.TryGetValue(type, out List<KListObject> tmpKList);
                 Scribe_Collections.Look(ref tmpKList, "klist-" + type, LookMode.Deep);
                 savedKLists[type] = tmpKList;
             }

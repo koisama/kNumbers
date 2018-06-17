@@ -159,7 +159,7 @@ namespace kNumbers
                 {
                     Find.MainTabsRoot.EscapeCurrentTab(true);
                     Find.Selector.ClearSelection();
-                    Find.CameraDriver.JumpToVisibleMapLoc(p.PositionHeld);
+                    Find.CameraDriver.JumpToCurrentMapLoc(p.PositionHeld);
                 }
 
                 //finally select if pawn is present
@@ -192,7 +192,7 @@ namespace kNumbers
     public class MainTabWindow_Numbers : MainTabWindow_ThingWithComp
     {
 
-        public enum pawnType
+        public enum PawnType
         {
             Colonists,
             Prisoners,
@@ -204,7 +204,7 @@ namespace kNumbers
             AnimalCorpses,
         }
 
-        public enum orderBy
+        public enum OrderBy
         {
             Name,
             Column
@@ -216,11 +216,11 @@ namespace kNumbers
         int pawnListUpdateNext = 0;
 
         //global lists
-        List<StatDef> pawnHumanlikeStatDef = new List<StatDef>();
-        List<StatDef> pawnAnimalStatDef = new List<StatDef>();
+        readonly List<StatDef> pawnHumanlikeStatDef = new List<StatDef>();
+        readonly List<StatDef> pawnAnimalStatDef = new List<StatDef>();
         List<NeedDef> pawnHumanlikeNeedDef = new List<NeedDef>();
-        List<NeedDef> pawnAnimalNeedDef = new List<NeedDef>();
-        List<SkillDef> pawnSkillDef = new List<SkillDef>();
+        readonly List<NeedDef> pawnAnimalNeedDef = new List<NeedDef>();
+        readonly List<SkillDef> pawnSkillDef = new List<SkillDef>();
 
         //local lists - content depends on pawn type
         List<StatDef> pStatDef;
@@ -228,7 +228,7 @@ namespace kNumbers
 
         List<KListObject> kList = new List<KListObject>();
 
-        orderBy chosenOrderBy = orderBy.Name;
+        OrderBy chosenOrderBy = OrderBy.Name;
         KListObject sortObject;
 
         float maxWindowWidth = 1060f;
@@ -248,7 +248,7 @@ namespace kNumbers
 
             MethodInfo statsToDraw = typeof(StatsReportUtility).GetMethod("StatsToDraw", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod, null, new Type[] { typeof(Thing) }, null);
 
-            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.SpaceSoldier, Faction.OfPlayer);
+            tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.AncientSoldier, Faction.OfPlayer);
 
             pawnHumanlikeStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).OrderBy(stat => stat.LabelCap).ToList();
             pawnHumanlikeNeedDef.AddRange(DefDatabase<NeedDef>.AllDefsListForReading);
@@ -258,7 +258,7 @@ namespace kNumbers
             pawnAnimalNeedDef = tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList();
         }
 
-        String numbersXMLPath
+        String NumbersXMLPath
         {
             get
             {
@@ -267,12 +267,12 @@ namespace kNumbers
             }
         }
 
-        public void writePresets()
+        public void WritePresets()
         {
 
         }
 
-        public void readPresets()
+        public void ReadPresets()
         {
 
         }
@@ -290,13 +290,13 @@ namespace kNumbers
             isDirty = true;
         }
 
-        bool fits(float desiredSize)
+        bool Fits(float desiredSize)
         {
             return (kListDesiredWidth + desiredSize + 70 < maxWindowWidth);
         }
 
 
-        bool isEnemy(Pawn p)
+        bool IsEnemy(Pawn p)
         {
             return
                 !p.IsPrisoner &&
@@ -304,20 +304,20 @@ namespace kNumbers
                     ((p.Faction != null) && p.Faction.HostileTo(Faction.OfPlayer)) ||
                     (!p.RaceProps.Animal && (!p.RaceProps.Humanlike || p.RaceProps.IsMechanoid))
                 ) &&
-                !p.Position.Fogged(Find.VisibleMap) && (p.Position != IntVec3.Invalid);
+                !p.Position.Fogged(Find.CurrentMap) && (p.Position != IntVec3.Invalid);
         }
 
-        bool isWildAnimal(Pawn p)
+        bool IsWildAnimal(Pawn p)
         {
-            return p.RaceProps.Animal && (p.Faction != Faction.OfPlayer) && !p.Position.Fogged(Find.VisibleMap) && (p.Position != IntVec3.Invalid);
+            return p.RaceProps.Animal && (p.Faction != Faction.OfPlayer) && !p.Position.Fogged(Find.CurrentMap) && (p.Position != IntVec3.Invalid);
         }
 
-        bool isGuest(Pawn p)
+        bool IsGuest(Pawn p)
         {
             return
                 (p.guest != null) && !p.guest.IsPrisoner &&
                 (p.Faction != null) && !p.Faction.HostileTo(Faction.OfPlayer) && p.Faction != Faction.OfPlayer &&
-                !p.Position.Fogged(Find.VisibleMap) && (p.Position != IntVec3.Invalid);
+                !p.Position.Fogged(Find.CurrentMap) && (p.Position != IntVec3.Invalid);
         }
 
         void UpdatePawnList()
@@ -329,50 +329,50 @@ namespace kNumbers
             switch (component.chosenPawnType)
             {
                 default:
-                case pawnType.Colonists:
-                    tempPawns = Find.VisibleMap.mapPawns.FreeColonists.Cast<ThingWithComps>().ToList();
+                case PawnType.Colonists:
+                    tempPawns = Find.CurrentMap.mapPawns.FreeColonists.Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
-                case pawnType.Prisoners:
-                    tempPawns = Find.VisibleMap.mapPawns.PrisonersOfColony.Cast<ThingWithComps>().ToList();
+                case PawnType.Prisoners:
+                    tempPawns = Find.CurrentMap.mapPawns.PrisonersOfColony.Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
-                case pawnType.Guests:
-                    tempPawns = Find.VisibleMap.mapPawns.AllPawns.Where(isGuest).Cast<ThingWithComps>().ToList();
+                case PawnType.Guests:
+                    tempPawns = Find.CurrentMap.mapPawns.AllPawns.Where(IsGuest).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
-                case pawnType.Enemies:
+                case PawnType.Enemies:
                     // tempPawns = Find.MapPawns.PawnsHostileToColony.Cast<ThingWithComps>().ToList();
-                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isEnemy(p) select p).Cast<ThingWithComps>().ToList();
+                    tempPawns = (from p in Find.CurrentMap.mapPawns.AllPawns where IsEnemy(p) select p).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnHumanlikeStatDef;
                     pNeedDef = pawnHumanlikeNeedDef;
                     break;
 
-                case pawnType.Animals:
-                    tempPawns = (from p in Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer) where p.RaceProps.Animal select p).Cast<ThingWithComps>().ToList();
+                case PawnType.Animals:
+                    tempPawns = (from p in Find.CurrentMap.mapPawns.PawnsInFaction(Faction.OfPlayer) where p.RaceProps.Animal select p).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
 
-                case pawnType.WildAnimals:
-                    tempPawns = (from p in Find.VisibleMap.mapPawns.AllPawns where isWildAnimal(p) select p).Cast<ThingWithComps>().ToList();
+                case PawnType.WildAnimals:
+                    tempPawns = (from p in Find.CurrentMap.mapPawns.AllPawns where IsWildAnimal(p) select p).Cast<ThingWithComps>().ToList();
                     pStatDef = pawnAnimalStatDef;
                     pNeedDef = pawnAnimalNeedDef;
                     break;
 
-                case pawnType.Corpses:
-                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (!(p as Corpse).InnerPawn.RaceProps.Animal)).Cast<ThingWithComps>().ToList();
+                case PawnType.Corpses:
+                    tempPawns = Find.CurrentMap.listerThings.AllThings.Where(p => (p is Corpse) && (!(p as Corpse).InnerPawn.RaceProps.Animal)).Cast<ThingWithComps>().ToList();
                     pStatDef = new List<StatDef>();
                     pNeedDef = new List<NeedDef>();
                     break;
-                case pawnType.AnimalCorpses:
-                    tempPawns = Find.VisibleMap.listerThings.AllThings.Where(p => (p is Corpse) && (p as Corpse).InnerPawn.RaceProps.Animal && !p.Position.Fogged(Find.VisibleMap)).Cast<ThingWithComps>().ToList();
+                case PawnType.AnimalCorpses:
+                    tempPawns = Find.CurrentMap.listerThings.AllThings.Where(p => (p is Corpse) && (p as Corpse).InnerPawn.RaceProps.Animal && !p.Position.Fogged(Find.CurrentMap)).Cast<ThingWithComps>().ToList();
                     pStatDef = new List<StatDef>();
                     pNeedDef = new List<NeedDef>();
                     break;
@@ -381,22 +381,22 @@ namespace kNumbers
             switch (chosenOrderBy)
             {
                 default:
-                case orderBy.Name:
+                case OrderBy.Name:
                     this.things = (from p in tempPawns
                         orderby p.LabelCap ascending
                         select p).ToList();
                     break;
 
-                case orderBy.Column:
+                case OrderBy.Column:
                     switch (sortObject.oType)
                     {
-                        case KListObject.objectType.Stat:
+                        case KListObject.ObjectType.Stat:
                             this.things = (from p in tempPawns
                                 orderby p.GetStatValue((StatDef)sortObject.displayObject, true) ascending
                                 select p).ToList();
                             break;
 
-                        case KListObject.objectType.Need:
+                        case KListObject.ObjectType.Need:
 
                             this.things = (from p in tempPawns
                                 where (p is Pawn) && !(p as Pawn).RaceProps.IsMechanoid && ((p as Pawn).needs != null)
@@ -404,7 +404,7 @@ namespace kNumbers
                                 select p).ToList();
                             break;
 
-                        case KListObject.objectType.Capacity:
+                        case KListObject.ObjectType.Capacity:
 
                             this.things = (from p in tempPawns
                                 where (p is Pawn) && ((p as Pawn).health != null)
@@ -412,49 +412,49 @@ namespace kNumbers
                                 select p).ToList();
                             break;
 
-                        case KListObject.objectType.Skill:
+                        case KListObject.ObjectType.Skill:
                             this.things = (from p in tempPawns
                                 where (p is Pawn) && (p as Pawn).RaceProps.Humanlike && ((p as Pawn).skills != null)
                                 orderby (p as Pawn).skills.GetSkill((SkillDef)sortObject.displayObject).XpTotalEarned ascending
                                 select p).ToList();
                             break;
 
-                        case KListObject.objectType.Gear:
+                        case KListObject.ObjectType.Gear:
                             this.things = tempPawns.Where(p => (p is Pawn) || ((p is Corpse) && (!(p as Corpse).InnerPawn.RaceProps.Animal))).OrderBy(p => {
                                 Pawn p1 = (p is Pawn) ? (p as Pawn) : (p as Corpse).InnerPawn;
                                 return (p1.equipment != null) ? ((p1.equipment.AllEquipmentListForReading.Any()) ? p1.equipment.AllEquipmentListForReading.First().LabelCap : "") : "";
                             }).ToList();
                             break;
 
-                        case KListObject.objectType.MentalState:
+                        case KListObject.ObjectType.MentalState:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).MentalState != null ? (p as Pawn).MentalState.ToString() : "").ToList();
                             break;
 
-                        case KListObject.objectType.ControlPrisonerGetsFood:
+                        case KListObject.ObjectType.ControlPrisonerGetsFood:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).guest.GetsFood).ToList();
                             break;
 
-                        case KListObject.objectType.ControlPrisonerInteraction:
+                        case KListObject.ObjectType.ControlPrisonerInteraction:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).guest.interactionMode.index).ToList();
                             break;
 
-                        case KListObject.objectType.PrisonerRecruitmentDifficulty:
+                        case KListObject.ObjectType.PrisonerRecruitmentDifficulty:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).RecruitDifficulty(Faction.OfPlayer, false)).ToList();
                             break;
 
-                        case KListObject.objectType.Age:
+                        case KListObject.ObjectType.Age:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).ageTracker.AgeBiologicalYearsFloat).ToList();
                             break;
 
-                        case KListObject.objectType.ControlMedicalCare:
+                        case KListObject.ObjectType.ControlMedicalCare:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).playerSettings.medCare).ToList();
                             break;
 
-                        case KListObject.objectType.CurrentJob:
+                        case KListObject.ObjectType.CurrentJob:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).jobs?.curDriver.GetReport()).ToList();
                             break;
 
-                        case KListObject.objectType.QueuedJob:
+                        case KListObject.ObjectType.QueuedJob:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(
                                 p => {
                                     string j = "";
@@ -467,7 +467,7 @@ namespace kNumbers
                             ).ToList();
                             break;
 
-                        case KListObject.objectType.AnimalMilkFullness:
+                        case KListObject.ObjectType.AnimalMilkFullness:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(
                                 p => {
                                     float f = -1;
@@ -482,7 +482,7 @@ namespace kNumbers
                             ).ToList();
                             break;
 
-                        case KListObject.objectType.AnimalWoolGrowth:
+                        case KListObject.ObjectType.AnimalWoolGrowth:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(
                                 p => {
                                     float f = -1;
@@ -519,7 +519,7 @@ namespace kNumbers
         public void PawnSelectOptionsMaker()
         {
             List<FloatMenuOption> list = new List<FloatMenuOption>();
-            foreach (pawnType pawn in Enum.GetValues(typeof(pawnType)))
+            foreach (PawnType pawn in Enum.GetValues(typeof(PawnType)))
             {
                 Action action = delegate
                 {
@@ -550,7 +550,7 @@ namespace kNumbers
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.Stat, stat.LabelCap, stat);
+                    KListObject kl = new KListObject(KListObject.ObjectType.Stat, stat.LabelCap, stat);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -566,7 +566,7 @@ namespace kNumbers
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.Skill, skill.LabelCap, skill);
+                    KListObject kl = new KListObject(KListObject.ObjectType.Skill, skill.LabelCap, skill);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -582,7 +582,7 @@ namespace kNumbers
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.Need, need.LabelCap, need);
+                    KListObject kl = new KListObject(KListObject.ObjectType.Need, need.LabelCap, need);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -598,7 +598,7 @@ namespace kNumbers
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.Capacity, pcd.LabelCap, pcd);
+                    KListObject kl = new KListObject(KListObject.ObjectType.Capacity, pcd.LabelCap, pcd);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -620,11 +620,11 @@ namespace kNumbers
             List<FloatMenuOption> list = new List<FloatMenuOption>();
 
             //equipment bearers            
-            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies, pawnType.Corpses }.Contains(component.chosenPawnType))
+            if (new[] { PawnType.Colonists, PawnType.Prisoners, PawnType.Enemies, PawnType.Corpses }.Contains(component.chosenPawnType))
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.Gear, "koisama.Equipment".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.Gear, "koisama.Equipment".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -632,11 +632,11 @@ namespace kNumbers
             }
 
             //all living things
-            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies, pawnType.Animals, pawnType.WildAnimals, pawnType.Guests }.Contains(component.chosenPawnType))
+            if (new[] { PawnType.Colonists, PawnType.Prisoners, PawnType.Enemies, PawnType.Animals, PawnType.WildAnimals, PawnType.Guests }.Contains(component.chosenPawnType))
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.Age, "koisama.Age".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.Age, "koisama.Age".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -644,18 +644,18 @@ namespace kNumbers
 
                 action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.MentalState, "koisama.MentalState".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.MentalState, "koisama.MentalState".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.MentalState".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
-            if (component.chosenPawnType == pawnType.Prisoners)
+            if (component.chosenPawnType == PawnType.Prisoners)
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.ControlPrisonerGetsFood, "GetsFood".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.ControlPrisonerGetsFood, "GetsFood".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -663,7 +663,7 @@ namespace kNumbers
 
                 Action action2 = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.ControlPrisonerInteraction, "koisama.Interaction".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.ControlPrisonerInteraction, "koisama.Interaction".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -671,17 +671,17 @@ namespace kNumbers
 
                 Action action3 = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.PrisonerRecruitmentDifficulty, "RecruitmentDifficulty".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.PrisonerRecruitmentDifficulty, "RecruitmentDifficulty".Translate(), null);
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("RecruitmentDifficulty".Translate(), action3, MenuOptionPriority.Default, null, null));
             }
 
-            if (component.chosenPawnType == pawnType.Animals)
+            if (component.chosenPawnType == PawnType.Animals)
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.AnimalMilkFullness, "MilkFullness".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.AnimalMilkFullness, "MilkFullness".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -689,41 +689,49 @@ namespace kNumbers
 
                 Action action2 = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.AnimalWoolGrowth, "WoolGrowth".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.AnimalWoolGrowth, "WoolGrowth".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("WoolGrowth".Translate(), action2, MenuOptionPriority.Default, null, null));
+
+                Action action3 = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.ObjectType.AnimalEggProgress, "EggProgress".Translate(), null);
+                    //if (fits(kl.minWidthDesired))
+                    kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("EggProgress".Translate(), action3, MenuOptionPriority.Default, null, null));
             }
 
             //healable
-            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Animals }.Contains(component.chosenPawnType))
+            if (new[] { PawnType.Colonists, PawnType.Prisoners, PawnType.Animals }.Contains(component.chosenPawnType))
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.ControlMedicalCare, "koisama.MedicalCare".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.ControlMedicalCare, "koisama.MedicalCare".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.MedicalCare".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
-            if (!new[] { pawnType.Corpses, pawnType.AnimalCorpses }.Contains(component.chosenPawnType))
+            if (!new[] { PawnType.Corpses, PawnType.AnimalCorpses }.Contains(component.chosenPawnType))
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.CurrentJob, "koisama.CurrentJob".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.CurrentJob, "koisama.CurrentJob".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Default, null, null));
             }
 
-            if (!new[] { pawnType.Corpses, pawnType.AnimalCorpses }.Contains(component.chosenPawnType))
+            if (!new[] { PawnType.Corpses, PawnType.AnimalCorpses }.Contains(component.chosenPawnType))
             {
                 Action action = delegate
                 {
-                    KListObject kl = new KListObject(KListObject.objectType.QueuedJob, "koisama.QueuedJob".Translate(), null);
+                    KListObject kl = new KListObject(KListObject.ObjectType.QueuedJob, "koisama.QueuedJob".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
@@ -771,7 +779,7 @@ namespace kNumbers
             x += buttonWidth + 10;
 
             //skills btn
-            if (new[] { pawnType.Colonists, pawnType.Prisoners, pawnType.Enemies }.Contains(component.chosenPawnType))
+            if (new[] { PawnType.Colonists, PawnType.Prisoners, PawnType.Enemies }.Contains(component.chosenPawnType))
             {
                 Rect skillColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
                 if (Widgets.ButtonText(skillColumnButton, "koisama.Numbers.AddSkillColumnLabel".Translate()))
@@ -824,13 +832,13 @@ namespace kNumbers
             Widgets.Label(nameLabel, "koisama.Numbers.Name".Translate());
             if (Widgets.ButtonInvisible(nameLabel))
             {
-                if (chosenOrderBy == orderBy.Name)
+                if (chosenOrderBy == OrderBy.Name)
                 {
                     pawnListDescending = !pawnListDescending;
                 }
                 else
                 {
-                    chosenOrderBy = orderBy.Name;
+                    chosenOrderBy = OrderBy.Name;
                     pawnListDescending = false;
                 }
                 isDirty = true;
@@ -846,9 +854,10 @@ namespace kNumbers
             int reorderableGroup = ReorderableWidget.NewGroup(delegate (int from, int to)
             {
                 KListObject oldKlistObject = kList[from];
-                kList.RemoveAt(from);
                 kList.Insert(to, oldKlistObject);
-            });
+                kList.RemoveAt((from >= to) ? (from + 1) : from);
+
+            }, ReorderableDirection.Horizontal);
 
             bool offset = true;
             kListDesiredWidth = 175f;
@@ -889,14 +898,14 @@ namespace kNumbers
                     else
                     {
 
-                        if (chosenOrderBy == orderBy.Column && kList[i].Equals(sortObject))
+                        if (chosenOrderBy == OrderBy.Column && kList[i].Equals(sortObject))
                         {
                             pawnListDescending = !pawnListDescending;
                         }
                         else
                         {
                             sortObject = kList[i];
-                            chosenOrderBy = orderBy.Column;
+                            chosenOrderBy = OrderBy.Column;
                             pawnListDescending = false;
                         }
                     }
