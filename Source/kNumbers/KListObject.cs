@@ -21,6 +21,7 @@ namespace kNumbers
             Need,
             Skill,
             Gear,   //weapon and all apparel
+            Record,
             ControlPrisonerGetsFood,
             ControlMedicalCare,
             ControlPrisonerInteraction,
@@ -249,30 +250,33 @@ namespace kNumbers
 
         private void DrawGear(Rect rect, ThingWithComps ownerPawn)
         {
-            GUI.BeginGroup(rect);
-            float x = 0;
-            float gWidth = 28f;
-            float gHeight = 28f;
+            //slight refactor: don't call GUI.BeginGroup before a return.
             Pawn p1 = (ownerPawn is Pawn) ? (ownerPawn as Pawn) : (ownerPawn as Corpse).InnerPawn;
             if (p1.RaceProps.Animal) return;
             if (p1.equipment != null)
-            foreach(ThingWithComps thing in p1.equipment.AllEquipmentListForReading)
+            {
+                GUI.BeginGroup(rect);
+                float x = 0;
+                float gWidth = 28f;
+                float gHeight = 28f;
+                foreach (ThingWithComps thing in p1.equipment.AllEquipmentListForReading)
                 {
                     Rect rect2 = new Rect(x, 0, gWidth, gHeight);
                     DrawThing(rect2, thing, p1);
                     x += gWidth;
                 }
 
-            if (p1.apparel != null)
-            foreach (Apparel thing in from ap in p1.apparel.WornApparel
-                                            orderby ap.def.apparel.bodyPartGroups[0].listOrder descending
-                                            select ap)
-                {
-                    Rect rect2 = new Rect(x, 0, gWidth, gHeight);
-                    DrawThing(rect2, thing, p1);
-                    x += gWidth;
-                }
-            GUI.EndGroup();
+                if (p1.apparel != null)
+                    foreach (Apparel thing in from ap in p1.apparel.WornApparel
+                                              orderby ap.def.apparel.bodyPartGroups[0].listOrder descending
+                                              select ap)
+                    {
+                        Rect rect2 = new Rect(x, 0, gWidth, gHeight);
+                        DrawThing(rect2, thing, p1);
+                        x += gWidth;
+                    }
+                GUI.EndGroup();
+            }
         }
 
         private void DrawThing(Rect rect, Thing thing, Pawn selPawn)
@@ -430,7 +434,6 @@ namespace kNumbers
                         Pair<string, Color> effLabel = HealthCardUtility.GetEfficiencyLabel(p, cap);
                         string pawnCapTip = HealthCardUtility.GetPawnCapacityTip(p, cap);
 
-
                         // I stole this one line from Fluffy's Medical Tab. THANKS FLUFFY!
                         string capValue = (p.health.capacities.GetLevel(cap) * 100f).ToString("F0") + "%";
                         GUI.color = effLabel.Second;
@@ -447,6 +450,31 @@ namespace kNumbers
                         stringBuilder2.AppendLine();
                         stringBuilder2.AppendLine(cap.description);
                         TooltipHandler.TipRegion(rect, new TipSignal(stringBuilder2.ToString(), rect.GetHashCode()));
+                    }
+                    break;
+
+                case ObjectType.Record:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn pawn)
+                    {
+                        RecordDef recordDef = (RecordDef)displayObject;
+                        string recordValue;
+
+                        if (recordDef.type == RecordType.Time)
+                            recordValue = pawn.records.GetAsInt(recordDef).ToStringTicksToPeriod();                        
+                        else                        
+                            recordValue = pawn.records.GetValue(recordDef).ToString("0.##");                        
+
+                        Widgets.Label(rect, recordValue);
+
+                        if (Mouse.IsOver(rect))
+                            GUI.DrawTexture(rect, TexUI.HighlightTex);
+
+                        StringBuilder recordDefStringBuilder = new StringBuilder();
+                        recordDefStringBuilder.AppendLine(recordDef.LabelCap);
+                        recordDefStringBuilder.AppendLine();
+                        recordDefStringBuilder.AppendLine(recordDef.description);
+                        TooltipHandler.TipRegion(rect, new TipSignal(recordDefStringBuilder.ToString(), rect.GetHashCode()));
                     }
                     break;
 

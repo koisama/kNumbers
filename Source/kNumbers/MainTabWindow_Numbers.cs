@@ -426,6 +426,13 @@ namespace kNumbers
                             }).ToList();
                             break;
 
+                        case KListObject.ObjectType.Record:
+                            this.things = (from p in tempPawns
+                                           where (p is Pawn) && ((p as Pawn).records != null)
+                                           orderby ((p as Pawn)).records.GetValue((RecordDef)sortObject.displayObject) ascending
+                                           select p).ToList();
+                            break;
+
                         case KListObject.ObjectType.MentalState:
                             this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).MentalState != null ? (p as Pawn).MentalState.ToString() : "").ToList();
                             break;
@@ -603,6 +610,21 @@ namespace kNumbers
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption(pcd.LabelCap, action, MenuOptionPriority.Default, null, null));
+            }
+            Find.WindowStack.Add(new FloatMenu(list));
+        }
+
+        public void RecordsOptionsMaker()
+        {
+            List<FloatMenuOption> list = new List<FloatMenuOption>();
+            foreach (RecordDef rcd in DefDatabase<RecordDef>.AllDefsListForReading)
+            {
+                Action action = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.ObjectType.Record, rcd.LabelCap, rcd);
+                    kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption(rcd.LabelCap, action, MenuOptionPriority.Default, null, null));
             }
             Find.WindowStack.Add(new FloatMenu(list));
         }
@@ -820,6 +842,12 @@ namespace kNumbers
             }
             x += buttonWidth + 10;
 
+            Rect recordsColumnBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
+            if (Widgets.ButtonText(recordsColumnBtn, "TabRecords".Translate()))
+            {
+                RecordsOptionsMaker();
+            }
+            x += buttonWidth + 10;
             //TODO: implement
             /*
             Rect addPresetBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
