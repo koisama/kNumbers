@@ -96,6 +96,12 @@ namespace kNumbers
                     displayObject = tempObjectCap;
                     break;
 
+                case ObjectType.Record:
+                    RecordDef tempObjectRecord = (RecordDef)displayObject;
+                    Scribe_Defs.Look(ref tempObjectRecord, "displayObject");
+                    displayObject = tempObjectRecord;
+                    break;
+
             }
 
         }
@@ -130,6 +136,7 @@ namespace kNumbers
                     break;
 
                 case ObjectType.Capacity:
+                case ObjectType.Record:
                     minWidthDesired = 60f;
                     break;
 
@@ -159,9 +166,7 @@ namespace kNumbers
                 case ObjectType.AnimalEggProgress:
                     minWidthDesired = 260f;
                     break;
-                    
             }
-
         }
 
         private void DrawSkill(Rect rect, Pawn ownerPawn)
@@ -404,6 +409,10 @@ namespace kNumbers
                     StatDef stat = (StatDef)displayObject;
                     stat.neverDisabled = true;
                     string statValue = (stat.ValueToString(ownerPawn.GetStatValue((StatDef)displayObject, true)));
+                    if (ownerPawn is Corpse && stat == StatDefOf.LeatherAmount) //ugly hardcoded fix to get proper leather amount 
+                    {
+                        statValue = (stat.ValueToString((ownerPawn as Corpse).InnerPawn.GetStatValue((StatDef)displayObject, true)));
+                    }
                     Widgets.Label(rect, statValue);
                     if (Mouse.IsOver(rect))
                     {
@@ -455,15 +464,15 @@ namespace kNumbers
 
                 case ObjectType.Record:
                     Text.Anchor = TextAnchor.MiddleCenter;
-                    if (ownerPawn is Pawn pawn)
+                    if (((ownerPawn as Corpse)?.InnerPawn ?? ownerPawn) is Pawn pawn) //get the innerpawn and still see their values when dead.
                     {
                         RecordDef recordDef = (RecordDef)displayObject;
                         string recordValue;
 
                         if (recordDef.type == RecordType.Time)
-                            recordValue = pawn.records.GetAsInt(recordDef).ToStringTicksToPeriod();                        
-                        else                        
-                            recordValue = pawn.records.GetValue(recordDef).ToString("0.##");                        
+                            recordValue = pawn.records.GetAsInt(recordDef).ToStringTicksToPeriod();
+                        else
+                            recordValue = pawn.records.GetValue(recordDef).ToString("0.##");
 
                         Widgets.Label(rect, recordValue);
 
@@ -575,7 +584,6 @@ namespace kNumbers
                         if(comp != null)
                         value = ((CompMilkable)comp).Fullness.ToStringPercent();
                     }
-
                     Widgets.Label(rect, value);
                     break;
 
@@ -587,7 +595,6 @@ namespace kNumbers
                         if (comp != null)
                             value = ((CompShearable)comp).Fullness.ToStringPercent();
                     }
-
                     Widgets.Label(rect, value);
                     break;
 
@@ -599,7 +606,6 @@ namespace kNumbers
                         if (comp != null)
                             value = ((CompEggLayer)comp).CompInspectStringExtra();
                     }
-
                     Widgets.Label(rect, value);
                     break;
 
@@ -624,7 +630,6 @@ namespace kNumbers
                             GUI.DrawTexture(rect, TexUI.HighlightTex);
                         }
                     }
-
                     break;
 
                 case ObjectType.QueuedJob:

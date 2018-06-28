@@ -218,9 +218,11 @@ namespace kNumbers
         //global lists
         readonly List<StatDef> pawnHumanlikeStatDef = new List<StatDef>();
         readonly List<StatDef> pawnAnimalStatDef = new List<StatDef>();
+        readonly List<StatDef> corpseStatDef = new List<StatDef>();
         List<NeedDef> pawnHumanlikeNeedDef = new List<NeedDef>();
         readonly List<NeedDef> pawnAnimalNeedDef = new List<NeedDef>();
         readonly List<SkillDef> pawnSkillDef = new List<SkillDef>();
+        
 
         //local lists - content depends on pawn type
         List<StatDef> pStatDef;
@@ -247,6 +249,7 @@ namespace kNumbers
             Pawn tmpPawn;
 
             MethodInfo statsToDraw = typeof(StatsReportUtility).GetMethod("StatsToDraw", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod, null, new Type[] { typeof(Thing) }, null);
+            MethodInfo corpseStatsToDraw = typeof(StatsReportUtility).GetMethod("StatsToDraw", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.InvokeMethod, null, new Type[] { typeof(Def), typeof(ThingDef) }, null);
 
             tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.AncientSoldier, Faction.OfPlayer);
 
@@ -256,6 +259,10 @@ namespace kNumbers
             tmpPawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Thrumbo, null);
             pawnAnimalStatDef = (from s in ((IEnumerable<StatDrawEntry>)statsToDraw.Invoke(null, new[] { tmpPawn })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
             pawnAnimalNeedDef = tmpPawn.needs.AllNeeds.Where(x => x.def.showOnNeedList).Select(x => x.def).ToList();
+
+            corpseStatDef = (from s in ((IEnumerable<StatDrawEntry>)corpseStatsToDraw.Invoke(null, new[] { tmpPawn.RaceProps.corpseDef, null })) where s.ShouldDisplay && s.stat != null select s.stat).ToList();
+            corpseStatDef.Add(StatDefOf.MeatAmount);
+            corpseStatDef.Add(StatDefOf.LeatherAmount);
         }
 
         String NumbersXMLPath
@@ -368,13 +375,12 @@ namespace kNumbers
 
                 case PawnType.Corpses:
                     tempPawns = Find.CurrentMap.listerThings.AllThings.Where(p => (p is Corpse) && (!(p as Corpse).InnerPawn.RaceProps.Animal)).Cast<ThingWithComps>().ToList();
-                    pStatDef = new List<StatDef>();
-                    pNeedDef = new List<NeedDef>();
+                    pStatDef = corpseStatDef;
                     break;
+
                 case PawnType.AnimalCorpses:
                     tempPawns = Find.CurrentMap.listerThings.AllThings.Where(p => (p is Corpse) && (p as Corpse).InnerPawn.RaceProps.Animal && !p.Position.Fogged(Find.CurrentMap)).Cast<ThingWithComps>().ToList();
-                    pStatDef = new List<StatDef>();
-                    pNeedDef = new List<NeedDef>();
+                    pStatDef = corpseStatDef;
                     break;
             }
 
@@ -551,7 +557,6 @@ namespace kNumbers
 
         public void StatsOptionsMaker()
         {
-
             List<FloatMenuOption> list = new List<FloatMenuOption>();
             foreach (StatDef stat in pStatDef)
             {
@@ -632,7 +637,7 @@ namespace kNumbers
         //presets
         public void PresetOptionsMaker()
         {
-
+            //TODO: Implement ;-)
         }
 
         //other hardcoded options
@@ -755,19 +760,15 @@ namespace kNumbers
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("koisama.CurrentJob".Translate(), action, MenuOptionPriority.Default, null, null));
-            }
 
-            if (!new[] { PawnType.Corpses, PawnType.AnimalCorpses }.Contains(component.chosenPawnType))
-            {
-                Action action = delegate
+                Action action2 = delegate
                 {
                     KListObject kl = new KListObject(KListObject.ObjectType.QueuedJob, "koisama.QueuedJob".Translate(), null);
                     //if (fits(kl.minWidthDesired))
                     kList.Add(kl);
                 };
-                list.Add(new FloatMenuOption("koisama.QueuedJob".Translate(), action, MenuOptionPriority.Default, null, null));
+                list.Add(new FloatMenuOption("koisama.QueuedJob".Translate(), action2, MenuOptionPriority.Default, null, null));
             }
-
             Find.WindowStack.Add(new FloatMenu(list));
         }
 
@@ -807,6 +808,7 @@ namespace kNumbers
                 StatsOptionsMaker();
             }
             x += buttonWidth + 10;
+            
 
             //skills btn
             if (new[] { PawnType.Colonists, PawnType.Prisoners, PawnType.Enemies }.Contains(component.chosenPawnType))
@@ -819,13 +821,16 @@ namespace kNumbers
                 x += buttonWidth + 10;
             }
 
-            //needs btn
-            Rect needsColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-            if (Widgets.ButtonText(needsColumnButton, "koisama.Numbers.AddNeedsColumnLabel".Translate()))
+            if (!new[] { PawnType.AnimalCorpses, PawnType.Corpses }.Contains(component.chosenPawnType))
             {
-                NeedsOptionsMaker();
+                //needs btn
+                Rect needsColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
+                if (Widgets.ButtonText(needsColumnButton, "koisama.Numbers.AddNeedsColumnLabel".Translate()))
+                {
+                    NeedsOptionsMaker();
+                }
+                x += buttonWidth + 10;
             }
-            x += buttonWidth + 10;
 
             //cap btn
             Rect capacityColumnButton = new Rect(x, 0f, buttonWidth, PawnRowHeight);
@@ -835,12 +840,15 @@ namespace kNumbers
             }
             x += buttonWidth + 10;
 
-            Rect otherColumnBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
-            if (Widgets.ButtonText(otherColumnBtn, "koisama.Numbers.AddOtherColumnLabel".Translate()))
+            if (!new[] { PawnType.AnimalCorpses }.Contains(component.chosenPawnType))
             {
-                OtherOptionsMaker();
+                Rect otherColumnBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
+                if (Widgets.ButtonText(otherColumnBtn, "koisama.Numbers.AddOtherColumnLabel".Translate()))
+                {
+                    OtherOptionsMaker();
+                }
+                x += buttonWidth + 10;
             }
-            x += buttonWidth + 10;
 
             Rect recordsColumnBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
             if (Widgets.ButtonText(recordsColumnBtn, "TabRecords".Translate()))
@@ -848,6 +856,7 @@ namespace kNumbers
                 RecordsOptionsMaker();
             }
             x += buttonWidth + 10;
+
             //TODO: implement
             /*
             Rect addPresetBtn = new Rect(x, 0f, buttonWidth, PawnRowHeight);
