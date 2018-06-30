@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+  <koisama.Numbers.Title>一覧</koisama.Numbers.Title>
+  <koisama.Numbers.Name>名前</koisama.Numbers.Name>
+  <koisama.Numbers.Count>行の数</koisama.Numbers.Count>
+  <koisama.Numbers.ClickToToggle>クリックすると、オブジェクトタイプが切り替わります。</koisama.Numbers.ClickToToggle>
+  <koisama.Numbers.SortByTooltip>クリックすると{0}でソートされます。</koisama.Numbers.SortByTooltip>
+  <koisama.Numbers.RemoveTooltip>右クリックして列を削除します。</koisama.Numbers.RemoveTooltip>
+  <koisama.Numbers.AddColumnLabel>ステータスを追加</koisama.Numbers.AddColumnLabel>
+  <koisama.Numbers.AddSkillColumnLabel>スキルを追加</koisama.Numbers.AddSkillColumnLabel>
+  <koisama.Numbers.AddNeedsColumnLabel>欲求を追加</koisama.Numbers.AddNeedsColumnLabel>
+  <koisama.Numbers.AddCapacityColumnLabel>能力を追加</koisama.Numbers.AddCapacityColumnLabel>
+  <koisama.Numbers.AddOtherColumnLabel>その他を追加</koisama.Numbers.AddOtherColumnLabel>
+  <koisama.Numbers.SetPresetLabel>プリセット</koisama.Numbers.SetPresetLabel>
+
+  <koisama.CurrentJob>作業中の仕事</koisama.CurrentJob>
+  <koisama.QueuedJob>待機中の仕事</koisama.QueuedJob>
+  <koisama.Equipment>裝備</koisama.Equipment>
+  <koisama.Interaction>囚人との交流</koisama.Interaction>
+  <koisama.Interaction.description>看守はどのようにしてこの囚人をどのように扱いますか？</koisama.Interaction.description>
+  <koisama.MedicalCare>医療ケア</koisama.MedicalCare>
+  <koisama.Age>年齢</koisama.Age>
+  <koisama.MentalState>精神狀態</koisama.MentalState>
+
+  <koisama.pawntype.Colonists>入植者</koisama.pawntype.Colonists>
+  <koisama.pawntype.Enemies>敵</koisama.pawntype.Enemies>
+  <koisama.pawntype.Prisoners>囚人</koisama.pawntype.Prisoners>
+  <koisama.pawntype.Guests>訪客</koisama.pawntype.Guests>
+  <koisama.pawntype.Animals>動物</koisama.pawntype.Animals>
+  <koisama.pawntype.WildAnimals>野生動物</koisama.pawntype.WildAnimals>
+  <koisama.pawntype.Corpses>死骸</koisama.pawntype.Corpses>
+  <koisama.pawntype.AnimalCorpses>動物の死骸</koisama.pawntype.AnimalCorpses>
+
+</LanguageData>
