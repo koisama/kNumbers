@@ -26,20 +26,11 @@ Now it's possible!
 
 ### Download
 
-**Last update:** 22/12/2016 (updated to `0.6.0`)
-
-[Latest release](https://github.com/Mehni/kNumbers/releases/latest)
-
-[Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=1414302321)
-
-[Ludeon](https://ludeon.com/forums/index.php?topic=35832.0)
-
-[All the releases](https://github.com/Mehni/kNumbers/releases)
-
-### Changelog
-
-[Check changelog here](./CHANGELOG.md).
-
+- [Latest release](https://github.com/Mehni/kNumbers/releases/latest)
+- [Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=1414302321)
+- [Ludeon](https://ludeon.com/forums/index.php?topic=35832.0)
+- [GitHub](https://github.com/Mehni/kNumbers)
+- [All the releases](https://github.com/Mehni/kNumbers/releases)
 
 ### Inspired by
 
