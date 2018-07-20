@@ -26,6 +26,7 @@ namespace kNumbers
             ControlMedicalCare,
             ControlPrisonerInteraction,
             PrisonerRecruitmentDifficulty,
+            PrisonerResistance,
             CurrentJob,
             QueuedJob,
             AnimalMilkFullness,
@@ -131,6 +132,7 @@ namespace kNumbers
                 case ObjectType.AnimalWoolGrowth:
                 case ObjectType.Stat:
                 case ObjectType.PrisonerRecruitmentDifficulty:
+                case ObjectType.PrisonerResistance:
                 case ObjectType.Race:
                     minWidthDesired = 80f;
                     break;
@@ -567,7 +569,16 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn)
                     {
-                        value = (ownerPawn as Pawn).RecruitDifficulty(Faction.OfPlayer, false).ToStringPercent();
+                        value = (ownerPawn as Pawn).RecruitDifficulty(Faction.OfPlayer).ToStringPercent(); //RecruitDifficulty(Faction.OfPlayer, false).ToStringPercent();
+                    }
+                    Widgets.Label(rect, value);
+                    break;
+
+                case ObjectType.PrisonerResistance:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn)
+                    {
+                        value = (ownerPawn as Pawn).guest.resistance.ToString("F1");
                     }
                     Widgets.Label(rect, value);
                     break;
@@ -580,7 +591,7 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.milkable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompMilkable).FirstOrDefault();
+                        var comp = ((Pawn)ownerPawn).AllComps.FirstOrDefault(x => x is CompMilkable);
                         if(comp != null)
                         value = ((CompMilkable)comp).Fullness.ToStringPercent();
                     }
@@ -591,7 +602,7 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.shearable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompShearable).FirstOrDefault();
+                        var comp = ((Pawn)ownerPawn).AllComps.FirstOrDefault(x => x is CompShearable);
                         if (comp != null)
                             value = ((CompShearable)comp).Fullness.ToStringPercent();
                     }
@@ -602,7 +613,7 @@ namespace kNumbers
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.reproductive)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompEggLayer).FirstOrDefault();
+                        var comp = ((Pawn)ownerPawn).AllComps.FirstOrDefault(x => x is CompEggLayer);
                         if (comp != null)
                             value = ((CompEggLayer)comp).CompInspectStringExtra();
                     }

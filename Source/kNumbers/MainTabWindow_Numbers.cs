@@ -452,7 +452,7 @@ namespace kNumbers
                             break;
 
                         case KListObject.ObjectType.PrisonerRecruitmentDifficulty:
-                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).RecruitDifficulty(Faction.OfPlayer, false)).ToList();
+                            this.things = tempPawns.Where(p => p is Pawn).OrderBy(p => (p as Pawn).RecruitDifficulty(Faction.OfPlayer)).ToList();
                             break;
 
                         case KListObject.ObjectType.Age:
@@ -710,6 +710,13 @@ namespace kNumbers
                     kList.Add(kl);
                 };
                 list.Add(new FloatMenuOption("RecruitmentDifficulty".Translate(), action3, MenuOptionPriority.Default, null, null));
+
+                Action action4 = delegate
+                {
+                    KListObject kl = new KListObject(KListObject.ObjectType.PrisonerResistance, "RecruitmentResistance".Translate(), null);
+                    kList.Add(kl);
+                };
+                list.Add(new FloatMenuOption("RecruitmentResistance".Translate(), action4, MenuOptionPriority.Default, null, null));
             }
 
             if (component.chosenPawnType == PawnType.Animals)
