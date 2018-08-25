@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+ 
+    <koisama.Numbers.Title>Résumé Numbers</koisama.Numbers.Title>
+    <koisama.Numbers.Name>Nom</koisama.Numbers.Name>
+    <koisama.Numbers.Count>Total</koisama.Numbers.Count>
+    <koisama.Numbers.ClickToToggle>Clic gauche pour sélectionner le type d'objet.</koisama.Numbers.ClickToToggle>
+    <koisama.Numbers.SortByTooltip>Classer selon {0}.</koisama.Numbers.SortByTooltip>
+    <koisama.Numbers.RemoveTooltip>Clic droit pour supprimer la colonne.</koisama.Numbers.RemoveTooltip>
+    <koisama.Numbers.AddColumnLabel>Ajouter stat</koisama.Numbers.AddColumnLabel>
+    <koisama.Numbers.AddSkillColumnLabel>Ajouter compétence</koisama.Numbers.AddSkillColumnLabel>
+    <koisama.Numbers.AddNeedsColumnLabel>Ajouter besoin</koisama.Numbers.AddNeedsColumnLabel>
+    <koisama.Numbers.AddCapacityColumnLabel>Ajouter santé</koisama.Numbers.AddCapacityColumnLabel>
+    <koisama.Numbers.AddOtherColumnLabel>Ajouter autres</koisama.Numbers.AddOtherColumnLabel>
+    <koisama.Numbers.SetPresetLabel>Records</koisama.Numbers.SetPresetLabel>
+   
+    <koisama.CurrentJob>Travail actuel</koisama.CurrentJob>
+    <koisama.QueuedJob>Travail suivant</koisama.QueuedJob> 
+    <koisama.Equipment>Equipement</koisama.Equipment>
+    <koisama.Interaction>Interaction avec le prisonnier</koisama.Interaction>
+    <koisama.Interaction.description>Comment les geôliers doivent traîter le prisonnier</koisama.Interaction.description>
+    <koisama.MedicalCare>Soins médicaux</koisama.MedicalCare>
+    <koisama.Age>Age</koisama.Age>
+    <koisama.MentalState>Etat psychique</koisama.MentalState>
+   
+    <koisama.pawntype.Colonists>Colons</koisama.pawntype.Colonists>
+    <koisama.pawntype.Enemies>Ennemis</koisama.pawntype.Enemies>
+    <koisama.pawntype.Prisoners>Prisonniers</koisama.pawntype.Prisoners>
+    <koisama.pawntype.Guests>Invités</koisama.pawntype.Guests>
+    <koisama.pawntype.Animals>Animaux</koisama.pawntype.Animals>
+    <koisama.pawntype.WildAnimals>Animaux sauvages</koisama.pawntype.WildAnimals>
+    <koisama.pawntype.Corpses>Corps</koisama.pawntype.Corpses>
+    <koisama.pawntype.AnimalCorpses>Corps Animaux</koisama.pawntype.AnimalCorpses>
+ 
+</LanguageData>
