@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+	<koisama.Numbers.Title>Przegląd liczb</koisama.Numbers.Title>
+	<koisama.Numbers.Name>Nazwa</koisama.Numbers.Name>
+	<koisama.Numbers.Count>Liczba</koisama.Numbers.Count>
+	<koisama.Numbers.ClickToToggle>Kliknij, aby wybrać typ obiektu.</koisama.Numbers.ClickToToggle>
+	<koisama.Numbers.SortByTooltip>Kliknij aby sortować {0}.</koisama.Numbers.SortByTooltip>
+	<koisama.Numbers.RemoveTooltip>Prawy przycisk aby usunąć kolumnę.</koisama.Numbers.RemoveTooltip>
+	<koisama.Numbers.AddColumnLabel>Dodaj statystykę</koisama.Numbers.AddColumnLabel>
+	<koisama.Numbers.AddSkillColumnLabel>Dodaj umiejętność</koisama.Numbers.AddSkillColumnLabel>
+	<koisama.Numbers.AddNeedsColumnLabel>Dodaj potrzebę</koisama.Numbers.AddNeedsColumnLabel>
+	<koisama.Numbers.AddCapacityColumnLabel>Dodaj zdolność</koisama.Numbers.AddCapacityColumnLabel>
+	<koisama.Numbers.AddOtherColumnLabel>Dodaj inne</koisama.Numbers.AddOtherColumnLabel>
+	<koisama.Numbers.SetPresetLabel>Presets</koisama.Numbers.SetPresetLabel>
+	
+	<koisama.CurrentJob>Obecna praca</koisama.CurrentJob>	
+	<koisama.QueuedJob>Praca w kolejce</koisama.QueuedJob>	
+	<koisama.Equipment>Ekwipunek</koisama.Equipment>
+	<koisama.Interaction>Interakcja więźnia</koisama.Interaction>
+	<koisama.Interaction.description>Jak strażnik powinien traktować tego więźnia.</koisama.Interaction.description>
+	<koisama.MedicalCare>Opieka medyczna</koisama.MedicalCare>
+	<koisama.Age>Wiek</koisama.Age>
+	<koisama.MentalState>Stan psychiczny</koisama.MentalState>
+	
+	<koisama.pawntype.Colonists>Koloniści</koisama.pawntype.Colonists>
+	<koisama.pawntype.Enemies>Przeciwnicy</koisama.pawntype.Enemies>
+	<koisama.pawntype.Prisoners>Więźniowie</koisama.pawntype.Prisoners>
+	<koisama.pawntype.Guests>Goście</koisama.pawntype.Guests>
+	<koisama.pawntype.Animals>Zwierzęta</koisama.pawntype.Animals>
+	<koisama.pawntype.WildAnimals>Dzikie zwierzta</koisama.pawntype.WildAnimals>
+	<koisama.pawntype.Corpses>Zwłoki</koisama.pawntype.Corpses>
+	<koisama.pawntype.AnimalCorpses>Zwołoki zwierząt</koisama.pawntype.AnimalCorpses>
+
+</LanguageData>

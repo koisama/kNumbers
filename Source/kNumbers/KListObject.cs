@@ -14,42 +14,46 @@ namespace kNumbers
     public class KListObject : IExposable
     {
 
-        public enum objectType
+        public enum ObjectType
         {
             Stat,
             Health, //can wait
             Need,
             Skill,
             Gear,   //weapon and all apparel
+            Record,
             ControlPrisonerGetsFood,
             ControlMedicalCare,
             ControlPrisonerInteraction,
+            PrisonerRecruitmentDifficulty,
+            PrisonerResistance,
             CurrentJob,
+            QueuedJob,
             AnimalMilkFullness,
             AnimalWoolGrowth,
+            AnimalEggProgress,
             Age,
             MentalState,
+            Race,
             Capacity
         }
 
-        public objectType oType;
+        public ObjectType oType;
         public string label;
         public object displayObject;
         public float minWidthDesired = 120f;
-
-        private static Texture2D    passionMinorIcon = ContentFinder<Texture2D>.Get("UI/Icons/PassionMinor", true),
-                                    passionMajorIcon = ContentFinder<Texture2D>.Get("UI/Icons/PassionMajor", true),
-                                    SkillBarFillTex = SolidColorMaterials.NewSolidColorTexture(new Color(1f, 1f, 1f, 0.25f)),
-                                    SkillBarBgTex = SolidColorMaterials.NewSolidColorTexture(new Color(1f, 1f, 1f, 0.07f)),
-                                    BarInstantMarkerTex = BarInstantMarkerTex = ContentFinder<Texture2D>.Get("UI/Misc/BarInstantMarker", true);
-
+        private static readonly Texture2D passionMinorIcon = ContentFinder<Texture2D>.Get("UI/Icons/PassionMinor", true);
+        private static readonly Texture2D passionMajorIcon = ContentFinder<Texture2D>.Get("UI/Icons/PassionMajor", true);
+        private static readonly Texture2D SkillBarFillTex = SolidColorMaterials.NewSolidColorTexture(new Color(1f, 1f, 1f, 0.25f));
+        private static readonly Texture2D SkillBarBgTex = SolidColorMaterials.NewSolidColorTexture(new Color(1f, 1f, 1f, 0.07f));
+        private static Texture2D BarInstantMarkerTex = BarInstantMarkerTex = ContentFinder<Texture2D>.Get("UI/Misc/BarInstantMarker", true);
         public static Texture2D[] careTextures = new Texture2D[]
         {
             ContentFinder<Texture2D>.Get("UI/Icons/Medical/NoCare", true),
             ContentFinder<Texture2D>.Get("UI/Icons/Medical/NoMeds", true),
-            ThingDefOf.HerbalMedicine.uiIcon,
-            ThingDefOf.Medicine.uiIcon,
-            ThingDefOf.GlitterworldMedicine.uiIcon
+            ThingDefOf.MedicineHerbal.uiIcon,
+            ThingDefOf.MedicineIndustrial.uiIcon,
+            ThingDefOf.MedicineUltratech.uiIcon
         };
 
         private static readonly Color DisabledSkillColor = new Color(1f, 1f, 1f, 0.5f);
@@ -63,34 +67,40 @@ namespace kNumbers
         public void ExposeData()
         {
             
-            Scribe_Values.LookValue<objectType>(ref oType, "oType");
-            Scribe_Values.LookValue<float>(ref minWidthDesired, "minWidthDesired");
-            Scribe_Values.LookValue<string>(ref this.label, "label");
+            Scribe_Values.Look<ObjectType>(ref oType, "oType");
+            Scribe_Values.Look<float>(ref minWidthDesired, "minWidthDesired");
+            Scribe_Values.Look<string>(ref this.label, "label");
 
             switch (oType)
             {
-                case objectType.Stat:
+                case ObjectType.Stat:
                     StatDef tempObjectS = (StatDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectS, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectS, "displayObject");
                     displayObject = tempObjectS;
                     break;
 
-                case objectType.Skill:
+                case ObjectType.Skill:
                     SkillDef tempObjectK = (SkillDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectK, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectK, "displayObject");
                     displayObject = tempObjectK;
                     break;
 
-                case objectType.Need:
+                case ObjectType.Need:
                     NeedDef tempObjectN = (NeedDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectN, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectN, "displayObject");
                     displayObject = tempObjectN;
                     break;
 
-                case objectType.Capacity:
+                case ObjectType.Capacity:
                     PawnCapacityDef tempObjectCap = (PawnCapacityDef)displayObject;
-                    Scribe_Defs.LookDef(ref tempObjectCap, "displayObject");
+                    Scribe_Defs.Look(ref tempObjectCap, "displayObject");
                     displayObject = tempObjectCap;
+                    break;
+
+                case ObjectType.Record:
+                    RecordDef tempObjectRecord = (RecordDef)displayObject;
+                    Scribe_Defs.Look(ref tempObjectRecord, "displayObject");
+                    displayObject = tempObjectRecord;
                     break;
 
             }
@@ -100,12 +110,12 @@ namespace kNumbers
         //Scribe wants it
         public KListObject()
         {
-            oType = objectType.Stat;
+            oType = ObjectType.Stat;
             label = " - ";
             displayObject = null;
         }
 
-        public KListObject(objectType type, string defName, object dObject)
+        public KListObject(ObjectType type, string defName, object dObject)
         {
             this.oType = type;
             this.label = defName;
@@ -113,47 +123,52 @@ namespace kNumbers
 
             switch (oType)
             {
-                case objectType.Skill:
+                case ObjectType.Skill:
                     minWidthDesired = 120f;
                     break;
 
-                case objectType.Age:
-                case objectType.AnimalMilkFullness:
-                case objectType.AnimalWoolGrowth:
-                case objectType.Stat:
+                case ObjectType.Age:
+                case ObjectType.AnimalMilkFullness:
+                case ObjectType.AnimalWoolGrowth:
+                case ObjectType.Stat:
+                case ObjectType.PrisonerRecruitmentDifficulty:
+                case ObjectType.PrisonerResistance:
+                case ObjectType.Race:
                     minWidthDesired = 80f;
                     break;
 
-                case objectType.Capacity:
+                case ObjectType.Capacity:
+                case ObjectType.Record:
                     minWidthDesired = 60f;
                     break;
 
-                case objectType.Need:
+                case ObjectType.Need:
                     minWidthDesired = 110f;
                     break;
 
-                case objectType.Gear:
+                case ObjectType.Gear:
                     minWidthDesired = 210f;
                     break;
 
-                case objectType.ControlPrisonerGetsFood:
+                case ObjectType.ControlPrisonerGetsFood:
                     minWidthDesired = 40f;
                     break;
 
-                case objectType.MentalState:
-                case objectType.ControlPrisonerInteraction:
+                case ObjectType.MentalState:
+                case ObjectType.ControlPrisonerInteraction:
                     minWidthDesired = 160f;
                     break;
 
-                case objectType.ControlMedicalCare:
+                case ObjectType.ControlMedicalCare:
                     minWidthDesired = 100f;
                     break;
 
-                case objectType.CurrentJob:
+                case ObjectType.CurrentJob:
+                case ObjectType.QueuedJob:
+                case ObjectType.AnimalEggProgress:
                     minWidthDesired = 260f;
                     break;
             }
-
         }
 
         private void DrawSkill(Rect rect, Pawn ownerPawn)
@@ -229,43 +244,46 @@ namespace kNumbers
             {
                 for (int i = 0; i < threshPercents.Count; i++)
                 {
-                    needDrawBarThreshold(rect3, threshPercents[i], need.CurLevelPercentage);
+                    NeedDrawBarThreshold(rect3, threshPercents[i], need.CurLevelPercentage);
                 }
             }
             float curInstantLevel = need.CurInstantLevelPercentage;
             if (curInstantLevel >= 0f)
             {
-                needDrawBarInstantMarkerAt(rect3, curInstantLevel);
+                NeedDrawBarInstantMarkerAt(rect3, curInstantLevel);
             }   
             Text.Font = GameFont.Small;
         }
 
         private void DrawGear(Rect rect, ThingWithComps ownerPawn)
         {
-            GUI.BeginGroup(rect);
-            float x = 0;
-            float gWidth = 28f;
-            float gHeight = 28f;
+            //slight refactor: don't call GUI.BeginGroup before a return.
             Pawn p1 = (ownerPawn is Pawn) ? (ownerPawn as Pawn) : (ownerPawn as Corpse).InnerPawn;
             if (p1.RaceProps.Animal) return;
             if (p1.equipment != null)
-            foreach(ThingWithComps thing in p1.equipment.AllEquipment)
+            {
+                GUI.BeginGroup(rect);
+                float x = 0;
+                float gWidth = 28f;
+                float gHeight = 28f;
+                foreach (ThingWithComps thing in p1.equipment.AllEquipmentListForReading)
                 {
                     Rect rect2 = new Rect(x, 0, gWidth, gHeight);
                     DrawThing(rect2, thing, p1);
                     x += gWidth;
                 }
 
-            if (p1.apparel != null)
-            foreach (Apparel thing in from ap in p1.apparel.WornApparel
-                                            orderby ap.def.apparel.bodyPartGroups[0].listOrder descending
-                                            select ap)
-                {
-                    Rect rect2 = new Rect(x, 0, gWidth, gHeight);
-                    DrawThing(rect2, thing, p1);
-                    x += gWidth;
-                }
-            GUI.EndGroup();
+                if (p1.apparel != null)
+                    foreach (Apparel thing in from ap in p1.apparel.WornApparel
+                                              orderby ap.def.apparel.bodyPartGroups[0].listOrder descending
+                                              select ap)
+                    {
+                        Rect rect2 = new Rect(x, 0, gWidth, gHeight);
+                        DrawThing(rect2, thing, p1);
+                        x += gWidth;
+                    }
+                GUI.EndGroup();
+            }
         }
 
         private void DrawThing(Rect rect, Thing thing, Pawn selPawn)
@@ -278,40 +296,38 @@ namespace kNumbers
             }
             if (Widgets.ButtonInvisible(rect) && Event.current.button == 1)
             {
-                List<FloatMenuOption> list = new List<FloatMenuOption>();
-                list.Add(new FloatMenuOption("ThingInfo".Translate(), delegate
+                List<FloatMenuOption> list = new List<FloatMenuOption>
                 {
-                    Find.WindowStack.Add(new Dialog_InfoCard(thing));
-                }, MenuOptionPriority.Default, null, null));
+                    new FloatMenuOption("ThingInfo".Translate(), delegate
+                    {
+                        Find.WindowStack.Add(new Dialog_InfoCard(thing));
+                    }, MenuOptionPriority.Default, null, null)
+                };
                 if (selPawn.IsColonistPlayerControlled)
                 {
                     Action action = null;
                     ThingWithComps eq = thing as ThingWithComps;
-                    Apparel ap = thing as Apparel;
-                    if (ap != null)
+                    if (thing is Apparel ap)
                     {
-                        Apparel unused;
                         action = delegate
                         {
-                            selPawn.apparel.TryDrop(ap, out unused, selPawn.Position, true);
+                            selPawn.apparel.TryDrop(ap, out Apparel unused, selPawn.Position, true);
                         };
                     }
-                    else if (eq != null && selPawn.equipment.AllEquipment.Contains(eq))
+                    else if (eq != null && selPawn.equipment.AllEquipmentListForReading.Contains(eq))
                     {
-                        ThingWithComps unused;
                         action = delegate
                         {
-                            selPawn.equipment.TryDropEquipment(eq, out unused, selPawn.Position, true);
+                            selPawn.equipment.TryDropEquipment(eq, out ThingWithComps unused, selPawn.Position, true);
                         };
                     }
                     else if (!thing.def.destroyOnDrop)
                     {
-                        Thing unused;
                         action = delegate
                         {
-                            selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out unused);
+                            selPawn.inventory.innerContainer.TryDrop(thing, selPawn.Position, selPawn.Map, ThingPlaceMode.Near, out Thing unused);
                         };
-                    }   
+                    }
                     list.Add(new FloatMenuOption("DropThing".Translate(), action, MenuOptionPriority.Default, null, null));
                 }
                 FloatMenu window = new FloatMenu(list, thing.LabelCap, false);
@@ -328,7 +344,7 @@ namespace kNumbers
 
         
 
-        public void needDrawBarThreshold(Rect barRect, float threshPct, float curLevel)
+        public void NeedDrawBarThreshold(Rect barRect, float threshPct, float curLevel)
         {
             float num = (float)((barRect.width <= 60f) ? 1 : 2);
             Rect position = new Rect(barRect.x + barRect.width * threshPct - (num - 1f), barRect.y + barRect.height / 2f, num, barRect.height / 2f);
@@ -347,7 +363,7 @@ namespace kNumbers
             GUI.color = Color.white;
         }
 
-        public void needDrawBarInstantMarkerAt(Rect barRect, float pct)
+        public void NeedDrawBarInstantMarkerAt(Rect barRect, float pct)
         {
             float num = 12f;
             if (barRect.width < 150f)
@@ -390,10 +406,15 @@ namespace kNumbers
 
             switch (oType)
             {
-                case objectType.Stat:
+                case ObjectType.Stat:
                     Text.Anchor = TextAnchor.MiddleCenter;
                     StatDef stat = (StatDef)displayObject;
+                    stat.neverDisabled = true;
                     string statValue = (stat.ValueToString(ownerPawn.GetStatValue((StatDef)displayObject, true)));
+                    if (ownerPawn is Corpse && stat == StatDefOf.LeatherAmount) //ugly hardcoded fix to get proper leather amount 
+                    {
+                        statValue = (stat.ValueToString((ownerPawn as Corpse).InnerPawn.GetStatValue((StatDef)displayObject, true)));
+                    }
                     Widgets.Label(rect, statValue);
                     if (Mouse.IsOver(rect))
                     {
@@ -407,27 +428,25 @@ namespace kNumbers
                     TooltipHandler.TipRegion(rect, new TipSignal(stringBuilder.ToString(), rect.GetHashCode()));
                     break;
 
-                case objectType.Skill:
+                case ObjectType.Skill:
                     if ((ownerPawn is Pawn) && (ownerPawn as Pawn).RaceProps.Humanlike) DrawSkill(rect, ownerPawn as Pawn);
                     break;
 
-                case objectType.Need:
+                case ObjectType.Need:
                     if (ownerPawn is Pawn) DrawNeed(rect, ownerPawn as Pawn);
                     break;
 
-                case objectType.Capacity:
+                case ObjectType.Capacity:
                     Text.Anchor = TextAnchor.MiddleCenter;
-                    if (ownerPawn is Pawn)
+                    if (ownerPawn is Pawn p)
                     {
-                        Pawn p = (Pawn)ownerPawn;
                         PawnCapacityDef cap = (PawnCapacityDef)displayObject;
 
                         Pair<string, Color> effLabel = HealthCardUtility.GetEfficiencyLabel(p, cap);
                         string pawnCapTip = HealthCardUtility.GetPawnCapacityTip(p, cap);
 
-                        
                         // I stole this one line from Fluffy's Medical Tab. THANKS FLUFFY!
-                        string capValue = (p.health.capacities.GetEfficiency(cap) * 100f).ToString("F0") + "%";
+                        string capValue = (p.health.capacities.GetLevel(cap) * 100f).ToString("F0") + "%";
                         GUI.color = effLabel.Second;
                         Widgets.Label(rect, capValue);
                         GUI.color = Color.white;
@@ -445,7 +464,32 @@ namespace kNumbers
                     }
                     break;
 
-                case objectType.MentalState:
+                case ObjectType.Record:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (((ownerPawn as Corpse)?.InnerPawn ?? ownerPawn) is Pawn pawn) //get the innerpawn and still see their values when dead.
+                    {
+                        RecordDef recordDef = (RecordDef)displayObject;
+                        string recordValue;
+
+                        if (recordDef.type == RecordType.Time)
+                            recordValue = pawn.records.GetAsInt(recordDef).ToStringTicksToPeriod();
+                        else
+                            recordValue = pawn.records.GetValue(recordDef).ToString("0.##");
+
+                        Widgets.Label(rect, recordValue);
+
+                        if (Mouse.IsOver(rect))
+                            GUI.DrawTexture(rect, TexUI.HighlightTex);
+
+                        StringBuilder recordDefStringBuilder = new StringBuilder();
+                        recordDefStringBuilder.AppendLine(recordDef.LabelCap);
+                        recordDefStringBuilder.AppendLine();
+                        recordDefStringBuilder.AppendLine(recordDef.description);
+                        TooltipHandler.TipRegion(rect, new TipSignal(recordDefStringBuilder.ToString(), rect.GetHashCode()));
+                    }
+                    break;
+
+                case ObjectType.MentalState:
                     Text.Font = GameFont.Tiny;
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && (ownerPawn as Pawn).MentalState != null) { 
@@ -459,7 +503,7 @@ namespace kNumbers
                     Text.Font = GameFont.Medium;
                     break;
 
-                case objectType.Age:
+                case ObjectType.Age:
                     Text.Anchor = TextAnchor.MiddleCenter;
                     string ageValue = ((ownerPawn as Pawn).ageTracker.AgeBiologicalYears.ToString());
                     Widgets.Label(rect, ageValue);
@@ -469,11 +513,21 @@ namespace kNumbers
                     }
                     break;
 
-                case objectType.Gear:
+                case ObjectType.Race:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    string race = ((ownerPawn as Pawn).kindDef.race.LabelCap) ?? string.Empty;
+                    Widgets.Label(rect, race);
+                    if (Mouse.IsOver(rect))
+                    {
+                        GUI.DrawTexture(rect, TexUI.HighlightTex);
+                    }
+                    break;
+
+                case ObjectType.Gear:
                     DrawGear(rect, ownerPawn);
                     break;
 
-                case objectType.ControlPrisonerGetsFood:
+                case ObjectType.ControlPrisonerGetsFood:
                     if (ownerPawn is Pawn)
                     {
                         if (Mouse.IsOver(rect))
@@ -486,7 +540,7 @@ namespace kNumbers
                     }
                     break;
 
-                case objectType.ControlPrisonerInteraction:
+                case ObjectType.ControlPrisonerInteraction:
                     if (ownerPawn is Pawn)
                     {
                         if (Mouse.IsOver(rect))
@@ -496,64 +550,103 @@ namespace kNumbers
                         float x = 8f;
 
                         GUI.BeginGroup(rect);
-                        IEnumerator enumerator = Enum.GetValues(typeof(PrisonerInteractionMode)).GetEnumerator();
-                        try
+                        foreach (PrisonerInteractionModeDef current in from prisonerinteractionmode in DefDatabase<PrisonerInteractionModeDef>.AllDefs
+                                                                                        orderby prisonerinteractionmode.listOrder
+                                                                                        select prisonerinteractionmode)
                         {
-                            while (enumerator.MoveNext())
+                            if (Widgets.RadioButton(new Vector2(x, 3f), (ownerPawn as Pawn).guest.interactionMode == current))
                             {
-                                PrisonerInteractionMode prisonerInteractionMode = (PrisonerInteractionMode)((byte)enumerator.Current);
-                                if (Widgets.RadioButton(new Vector2(x, 3f), (ownerPawn as Pawn).guest.interactionMode == prisonerInteractionMode))
-                                {
-                                    (ownerPawn as Pawn).guest.interactionMode = prisonerInteractionMode;
-                                }
-                                TooltipHandler.TipRegion(new Rect(x, 0f, 30f, 30f), new TipSignal(prisonerInteractionMode.GetLabel()));
-                                x += 30f;
+                                (ownerPawn as Pawn).guest.interactionMode = current;
                             }
-                        }
-                        finally
-                        {
-                            IDisposable disposable = enumerator as IDisposable;
-                            if (disposable != null)
-                            {
-                                disposable.Dispose();
-                            }
+                            TooltipHandler.TipRegion(new Rect(x, 0f, 30f, 30f), new TipSignal(current.LabelCap));
+                            x += 30f;
                         }
                         GUI.EndGroup();
                     }
                     break;
 
-                case objectType.ControlMedicalCare:
+                case ObjectType.PrisonerRecruitmentDifficulty:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn)
+                    {
+                        value = (ownerPawn as Pawn).RecruitDifficulty(Faction.OfPlayer).ToStringPercent(); //RecruitDifficulty(Faction.OfPlayer, false).ToStringPercent();
+                    }
+                    Widgets.Label(rect, value);
+                    break;
+
+                case ObjectType.PrisonerResistance:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn)
+                    {
+                        value = (ownerPawn as Pawn).guest.resistance.ToString("F1");
+                    }
+                    Widgets.Label(rect, value);
+                    break;
+
+                case ObjectType.ControlMedicalCare:
                     if (ownerPawn is Pawn) MedicalCareSetter(rect, ref (ownerPawn as Pawn).playerSettings.medCare);
                     break;
 
-                case objectType.AnimalMilkFullness:
+                case ObjectType.AnimalMilkFullness:
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.milkable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompMilkable).FirstOrDefault();
+                        var comp = ((Pawn)ownerPawn).AllComps.FirstOrDefault(x => x is CompMilkable);
                         if(comp != null)
                         value = ((CompMilkable)comp).Fullness.ToStringPercent();
                     }
-
                     Widgets.Label(rect, value);
                     break;
 
-                case objectType.AnimalWoolGrowth:
+                case ObjectType.AnimalWoolGrowth:
                     Text.Anchor = TextAnchor.MiddleCenter;
                     if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.shearable)
                     {
-                        var comp = ((Pawn)ownerPawn).AllComps.Where<ThingComp>(x => x is CompShearable).FirstOrDefault();
+                        var comp = ((Pawn)ownerPawn).AllComps.FirstOrDefault(x => x is CompShearable);
                         if (comp != null)
                             value = ((CompShearable)comp).Fullness.ToStringPercent();
                     }
-
                     Widgets.Label(rect, value);
                     break;
 
-                case objectType.CurrentJob:
-                    if(ownerPawn is Pawn && ((Pawn)ownerPawn).jobs.curDriver != null )
+                case ObjectType.AnimalEggProgress:
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).ageTracker.CurLifeStage.reproductive)
+                    {
+                        var comp = ((Pawn)ownerPawn).AllComps.FirstOrDefault(x => x is CompEggLayer);
+                        if (comp != null)
+                            value = ((CompEggLayer)comp).CompInspectStringExtra();
+                    }
+                    Widgets.Label(rect, value);
+                    break;
+
+                case ObjectType.CurrentJob:
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs?.curDriver != null)
                     {
                         string text = ((Pawn)ownerPawn).jobs.curDriver.GetReport();
+                        Text.Anchor = TextAnchor.MiddleLeft;
+                        Rect tRect = new Rect(rect.xMin + 2, rect.yMin + 3, rect.width - 2, rect.height);
+                        GenText.SetTextSizeToFit(text, tRect);
+
+                        if (Text.Font == GameFont.Tiny)
+                            Widgets.Label(tRect, text);
+                        else
+                        {
+                            Rect sRect = new Rect(rect.xMin + 2, rect.yMin, rect.width - 2, rect.height);
+                            Widgets.Label(sRect, text);
+                        }
+
+                        if (Mouse.IsOver(rect))
+                        {
+                            GUI.DrawTexture(rect, TexUI.HighlightTex);
+                        }
+                    }
+                    break;
+
+                case ObjectType.QueuedJob:
+                    if (ownerPawn is Pawn && ((Pawn)ownerPawn).jobs?.jobQueue.Count > 0)
+                    {
+                        string text =((Pawn)ownerPawn).jobs.jobQueue[0].job.GetReport((Pawn)ownerPawn);
                         Text.Anchor = TextAnchor.MiddleLeft;
                         Rect tRect = new Rect(rect.xMin + 2, rect.yMin + 3, rect.width - 2, rect.height);
                         GenText.SetTextSizeToFit(text, tRect);

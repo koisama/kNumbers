@@ -15,6 +15,7 @@
 	<koisama.Numbers.SetPresetLabel>Presets</koisama.Numbers.SetPresetLabel>
 	
 	<koisama.CurrentJob>Current Job</koisama.CurrentJob>	
+	<koisama.QueuedJob>Queued Job</koisama.QueuedJob>	
 	<koisama.Equipment>Equipment</koisama.Equipment>
 	<koisama.Interaction>Prisoner Interaction</koisama.Interaction>
 	<koisama.Interaction.description>How should wardens treat this prisoner.</koisama.Interaction.description>
